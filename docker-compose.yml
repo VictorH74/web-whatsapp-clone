@@ -1,0 +1,29 @@
+version: '3.9'
+services:
+  db:
+    image: postgres
+    container_name: postgres_wa_db
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - 5432:5432
+    volumes:
+      - ./data:/var/lib/postgresql/data
+      
+  app:
+    container_name: next_wa_app
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/node/home/app
+    command: npm run dev
+    environment:
+      DB_URL: ${DATABASE_URL}
+    ports:
+      - 3000:3000
+    depends_on:
+      - db
+
