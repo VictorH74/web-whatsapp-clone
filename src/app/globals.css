@@ -16,6 +16,26 @@
   }
 }
 
-body {
-  background-color: black;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+
+  
+}
+
+.custom-scrollbar {
+  ::-webkit-scrollbar {
+    background-color: transparent;
+    width: 5px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: #374045;
+  }
+}
+
+.header-actions button {
+  
 }
