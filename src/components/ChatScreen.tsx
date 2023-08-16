@@ -22,7 +22,7 @@ export default function ChatScreen({ chatIndex }: Props) {
           .map((u) => u.name)
           .join(",")}
       />
-      <div className="flex flex-col h-full p-4 justify-end  text-white">
+      <div className="flex flex-col gap-3 h-full p-4 justify-end  text-white">
         {messages.map((m) => (
           <div
             className={`bg-[#005C4B] p-2 rounded-md w-auto ${
