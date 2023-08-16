@@ -1,14 +1,14 @@
-import Chat from "./Chat";
+import ChatTile from "./ChatTile";
 
 interface Props {
-  chatList: Chat[];
+  chatList: ChatBox[];
 }
 
 export default function Chats({ chatList }: Props) {
   return (
     <div className="overflow-auto h-full">
       {chatList.map((chat, i) => (
-        <Chat key={chat.id} data={chat} last={i === chatList.length - 1} />
+        <ChatTile key={chat.id} data={chat} index={i}  last={i === chatList.length - 1} />
       ))}
     </div>
   );
