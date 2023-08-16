@@ -18,8 +18,7 @@ export default function ChatScreen({ chatIndex }: Props) {
     <div className="w-full h-screen bg-[#0B141A] flex flex-col">
       <Header
         heading={chats[chatIndex].users
-          .filter((u) => u.email !== currentUser?.email)
-          .map((u) => u.name)
+          .filter((u) => u !== currentUser?.email)
           .join(",")}
       />
       <div className="flex flex-col gap-3 h-full p-4 justify-end  text-white">
