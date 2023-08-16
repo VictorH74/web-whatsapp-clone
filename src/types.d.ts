@@ -2,7 +2,7 @@ type ChatBox = {
   id: string;
   createAt: Date;
   messages?: Message[] | [];
-  users: User[];
+  users: string[];
 };
 
 type User = {

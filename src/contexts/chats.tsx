@@ -37,14 +37,11 @@ export default function ChatsProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    // console.log(auth.currentUser);
+    console.log(auth.currentUser);
 
     const q = query(
       collection(db, "chats"),
-      where("users", "array-contains", {
-        email: "victorh.almeida7@gmail.com",
-        name: "Victor Hugo Pro",
-      })
+      where("users", "array-contains", auth.currentUser.email)
     );
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const messages: any[] = [];

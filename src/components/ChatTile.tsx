@@ -36,8 +36,7 @@ export default function ChatTile({ data, index, last }: Props) {
       >
         <h2 className="text-white">
           {data.users
-            .filter((u) => u.email !== auth.currentUser?.email)
-            .map((u) => u.name)
+            .filter((u) => u !== auth.currentUser?.email)
             .join(",")}
         </h2>
         <p
@@ -45,7 +44,7 @@ export default function ChatTile({ data, index, last }: Props) {
             !data.messages ? "opacity-0" : ""
           }`}
         >
-          {data?.messages
+          {data?.messages && data?.messages.length > 0
             ? data.messages[data.messages.length - 1].content
             : "-"}
         </p>
