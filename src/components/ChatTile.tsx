@@ -1,5 +1,6 @@
 import useChats from "@/hooks/useChats";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import GroupsIcon from "@mui/icons-material/Groups";
 import { getAuth } from "firebase/auth";
 
 interface Props {
@@ -14,6 +15,7 @@ export default function ChatTile({ data, index, last }: Props) {
 
   const handleClick = () => {
     if (currentChatIndex === index) return;
+
     setCurrentChatIndexState(index);
   };
 
@@ -25,7 +27,13 @@ export default function ChatTile({ data, index, last }: Props) {
       onClick={handleClick}
     >
       <div className="p-2">
-        <AccountCircleIcon sx={{ color: "white", fontSize: "55px" }} />
+        {data.users.length > 2 ? (
+          <div className="m-[6px] grid place-items-center bg-white w-[45px] h-[45px] rounded-full">
+            <GroupsIcon sx={{ color: "black", fontSize: 20 }} />
+          </div>
+        ) : (
+          <AccountCircleIcon sx={{ color: "white", fontSize: "55px" }} />
+        )}
       </div>
 
       <div

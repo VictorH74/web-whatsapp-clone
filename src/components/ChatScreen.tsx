@@ -2,28 +2,54 @@ import { getAuth } from "firebase/auth";
 import Header from "./Header";
 import useChats from "@/hooks/useChats";
 import ChatScreenFooter from "./ChatScreenFooter";
+import { deleteDoc, doc } from "firebase/firestore";
+import { db } from "@/services/firebase";
+import Image from "next/image";
 
-interface Props {
-  chatIndex: number;
-}
 
-export default function ChatScreen({ chatIndex }: Props) {
+export default function ChatScreen() {
   const { currentUser } = getAuth();
-  const { chats } = useChats();
+  const { chats, currentChatIndex, setCurrentChatIndexState } = useChats();
 
-  const messages = chats[chatIndex].messages || [];
+  const deleteChat = async () => {
+    if (currentChatIndex === null) return;
+    console.log(currentChatIndex);
+    const ref = doc(db, "chats", chats[currentChatIndex].id);
+
+    setCurrentChatIndexState(null);
+    await deleteDoc(ref);
+  };
+
+  if (currentChatIndex === null) {
+    return (
+      <div className="w-full h-screen bg-[#0B141A] grid place-content-center text-white">
+        <Image src="/undraw_void.svg" alt="empty-chat-image" width={300} height={300} />
+      </div>
+    );
+  }
+
+  const users = chats[currentChatIndex].users;
 
   return (
     <div className="w-full flex flex-col h-screen bg-[#0B141A]">
       <Header
-        heading={chats[chatIndex].users
+        type={users.length > 2 ? "group" : "duo"}
+        heading={users
           .filter((u) => u.email !== currentUser?.email)
           .map((u) => u.name)
           .join(",")}
+        menuItems={[
+          {
+            onClick() {
+              deleteChat();
+            },
+            title: "Deletar Chat",
+          },
+        ]}
       />
       <div className="flex flex-col grow justify-end text-white overflow-y-auto custom-scrollbar">
         <div className="flex flex-col gap-3 p-4 overflow-y-auto">
-          {messages.map((m) => (
+          {chats[currentChatIndex].messages.map((m) => (
             <div
               className={`bg-[#005C4B] p-2 rounded-md w-auto ${
                 m.sender === "system"
@@ -40,7 +66,7 @@ export default function ChatScreen({ chatIndex }: Props) {
         </div>
       </div>
       <ChatScreenFooter
-        chatId={chats[chatIndex].id}
+        chatId={chats[currentChatIndex].id}
         currentUserEmail={currentUser?.email || ""}
       />
     </div>

@@ -17,14 +17,14 @@ interface ChatsProvider {
   chats: ChatBox[] | [];
   currentChatIndex: number | null;
   isLoading: boolean;
-  setCurrentChatIndexState: (index: number) => void;
+  setCurrentChatIndexState: (index: number | null) => void;
 }
 
 export const ChatsCtx = createContext<ChatsProvider>({
   chats: [],
   currentChatIndex: null,
   isLoading: true,
-  setCurrentChatIndexState: (index: number) => null,
+  setCurrentChatIndexState: (index: number | null) => null,
 });
 
 export default function ChatsProvider({ children }: { children: ReactNode }) {
@@ -34,7 +34,7 @@ export default function ChatsProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const auth = getAuth();
 
-  const setCurrentChatIndexState = (index: number) => {
+  const setCurrentChatIndexState = (index: number | null) => {
     setCurrentChatIndex(() => index);
   };
 

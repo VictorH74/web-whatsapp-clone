@@ -51,7 +51,7 @@ export default function NewChat({ show, setShow }: Props) {
       if (!emailValue) return;
       fetchUsers();
     },
-    1000,
+    400,
     [emailValue]
   );
 

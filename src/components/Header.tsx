@@ -5,8 +5,10 @@ import { ReactNode } from "react";
 import * as React from "react";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
+import GroupsIcon from "@mui/icons-material/Groups";
 
 interface Props {
+  type?: "account" | "duo" | "group";
   actions?: ReactNode[];
   heading?: string;
   accountImgUrl?: string;
@@ -18,7 +20,13 @@ type MenuItemProps = {
   onClick(): void;
 };
 
-const Header = ({ actions, heading, accountImgUrl, menuItems }: Props) => {
+const Header = ({
+  actions,
+  heading,
+  accountImgUrl,
+  menuItems,
+  type = "account",
+}: Props) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -31,7 +39,11 @@ const Header = ({ actions, heading, accountImgUrl, menuItems }: Props) => {
   return (
     <div className="w-full h-16 bg-[#222E35] flex flex-row items-center py-1 px-3 justify-between text-white">
       <div className="flex items-center gap-2">
-        {accountImgUrl ? (
+        {type === "group" ? (
+          <div className="m-[6px] grid place-items-center bg-white w-[39px] h-[39px] rounded-full">
+            <GroupsIcon sx={{ color: "black", fontSize: 20 }} />
+          </div>
+        ) : accountImgUrl ? (
           <Image
             className="rounded-full"
             alt="account-image"

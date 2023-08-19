@@ -10,25 +10,29 @@ import GroupsIcon from "@mui/icons-material/Groups";
 import ChatScreen from "@/components/ChatScreen";
 import { getAuth } from "firebase/auth";
 import NewChat from "@/components/NewChat";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
+import Loading from "@/components/Loading";
 
 const Main = () => {
-  const { isLoading, chats, currentChatIndex } = useChats();
+  const { isLoading, chats } = useChats();
   const [show, setShow] = useState(false);
   const auth = getAuth();
   const router = useRouter();
   const { currentUser } = getAuth();
 
-  const handleSetShow = (value: boolean) => {
-    setShow(() => value);
-  };
+  const handleSetShow = useCallback(
+    (value: boolean) => {
+      setShow(() => value);
+    },
+    []
+  );
 
   return (
     <>
       {isLoading ? (
         <main className="w-screen h-screen grid place-items-center">
-          <h1 className="text-white">loading</h1>
+          < Loading className="w-12 h-12" />
         </main>
       ) : (
         <main className="flex flex-row overflow-hidden">
@@ -62,14 +66,7 @@ const Main = () => {
             />
             <Chats chatList={chats} />
           </aside>
-          {currentChatIndex !== null ? (
-            // <div>dsd</div>
-            <ChatScreen chatIndex={currentChatIndex} />
-          ) : (
-            <div className="w-full h-screen bg-[#0B141A] grid place-content-center text-white">
-              NOTHIND
-            </div>
-          )}
+           <ChatScreen />
         </main>
       )}
     </>
