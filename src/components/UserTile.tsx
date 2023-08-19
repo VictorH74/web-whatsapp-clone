@@ -1,5 +1,6 @@
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import Image from "next/image";
 
 interface Props {
   user: User;
@@ -38,7 +39,17 @@ export default function UserTile({
         />
       )}
       <div className="p-2">
-        <AccountCircleIcon sx={{ color: "white", fontSize: "55px" }} />
+        {user.photoUrl ? (
+          <Image
+            className="rounded-full"
+            alt="account-image"
+            src={user.photoUrl}
+            width={55}
+            height={55}
+          />
+        ) : (
+          <AccountCircleIcon sx={{ color: "white", fontSize: "55px" }} />
+        )}
       </div>
 
       <div
