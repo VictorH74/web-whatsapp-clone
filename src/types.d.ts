@@ -1,18 +1,22 @@
 type ChatBox = {
   id: string;
-  createAt: Date;
+  createdAt: Date;
   messages?: Message[] | [];
-  users: string[];
+  users: SimpleUser[];
 };
 
 type User = {
+  photoUrl?: string;
   email: string;
   name: string;
+  createdAt: Date;
 };
+
+type SimpleUser = Pick<User, "name" | "email">;
 
 type Message = {
   sender: string;
   content: string;
-  createdAt: Date;
+  createdAt: any;
   vizualizedBy: string[];
 };

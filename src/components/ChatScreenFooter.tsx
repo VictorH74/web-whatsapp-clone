@@ -5,7 +5,6 @@ import SendIcon from "@mui/icons-material/Send";
 import { ChangeEvent, FormEvent, useState } from "react";
 import { Timestamp, arrayUnion, doc, updateDoc } from "firebase/firestore";
 import { db } from "@/services/firebase";
-import firebase from "firebase/compat/app";
 
 interface Props {
   chatId: string;
@@ -44,13 +43,13 @@ export default function ChatScreenFooter({ chatId, currentUserEmail }: Props) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div className="bg-[#202C33] py-3 px-5 flex flex-row items-center gap-3">
+      <div className="bg-[#202C33] py-3 px-5 flex flex-row items-center gap-3 custom-scrollbar">
         <TagFacesIcon sx={{ color: "#8696A0", fontSize: 30 }} />
         <AddIcon sx={{ color: "#8696A0", fontSize: 30 }} />
 
         <textarea
           rows={1}
-          className="p-3 w-full text-white outline-none bg-[#2A3942] rounded-md resize-none overflow-hidden min-h-[36px]"
+          className="p-3 w-full text-white outline-none bg-[#2A3942] rounded-md resize-none overflow-hidden min-h-[36px] max-h-36 overflow-y-auto"
           placeholder="Mensagem"
           value={text}
           onChange={handleChange}

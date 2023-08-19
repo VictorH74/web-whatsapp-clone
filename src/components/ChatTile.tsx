@@ -9,20 +9,19 @@ interface Props {
 }
 
 export default function ChatTile({ data, index, last }: Props) {
-  const auth = getAuth();
+  const { currentUser } = getAuth();
   const { setCurrentChatIndexState, currentChatIndex } = useChats();
 
   const handleClick = () => {
-    console.count()
-    if (currentChatIndex === index) return
-    console.log("click")
+    if (currentChatIndex === index) return;
     setCurrentChatIndexState(index);
   };
 
-  // console.log(data); #2A3942 
   return (
     <div
-      className={`flex flex-row items-center ${currentChatIndex === index ? "bg-[#2A3942]" : ""} hover:bg-[#202C33] hover:cursor-pointer`}
+      className={`flex flex-row items-center ${
+        currentChatIndex === index ? "bg-[#2A3942]" : ""
+      } hover:bg-[#202C33] hover:cursor-pointer`}
       onClick={handleClick}
     >
       <div className="p-2">
@@ -36,7 +35,8 @@ export default function ChatTile({ data, index, last }: Props) {
       >
         <h2 className="text-white">
           {data.users
-            .filter((u) => u !== auth.currentUser?.email)
+            .filter((u) => u.email !== currentUser?.email)
+            .map((u) => u.name)
             .join(",")}
         </h2>
         <p

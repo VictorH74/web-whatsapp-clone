@@ -1,6 +1,5 @@
 import { getAuth } from "firebase/auth";
 import Header from "./Header";
-import { Timestamp } from "firebase/firestore";
 import useChats from "@/hooks/useChats";
 import ChatScreenFooter from "./ChatScreenFooter";
 
@@ -15,25 +14,35 @@ export default function ChatScreen({ chatIndex }: Props) {
   const messages = chats[chatIndex].messages || [];
 
   return (
-    <div className="w-full h-screen bg-[#0B141A] flex flex-col">
+    <div className="w-full flex flex-col h-screen bg-[#0B141A]">
       <Header
         heading={chats[chatIndex].users
-          .filter((u) => u !== currentUser?.email)
+          .filter((u) => u.email !== currentUser?.email)
+          .map((u) => u.name)
           .join(",")}
       />
-      <div className="flex flex-col gap-3 h-full p-4 justify-end  text-white">
-        {messages.map((m) => (
-          <div
-            className={`bg-[#005C4B] p-2 rounded-md w-auto ${
-              currentUser?.email === m.sender ? "self-end" : "self-start bg-[#202C33]"
-            }`}
-            key={m.createdAt.toString()}
-          >
-            {m.content}
-          </div>
-        ))}
+      <div className="flex flex-col grow justify-end text-white overflow-y-auto custom-scrollbar">
+        <div className="flex flex-col gap-3 p-4 overflow-y-auto">
+          {messages.map((m) => (
+            <div
+              className={`bg-[#005C4B] p-2 rounded-md w-auto ${
+                m.sender === "system"
+                  ? "self-center bg-gray-800"
+                  : currentUser?.email === m.sender
+                  ? "self-end"
+                  : "self-start bg-[#202C33]"
+              }`}
+              key={m.createdAt.toString()}
+            >
+              {m.content}
+            </div>
+          ))}
+        </div>
       </div>
-      <ChatScreenFooter chatId={chats[chatIndex].id} currentUserEmail={currentUser?.email || ""} />
+      <ChatScreenFooter
+        chatId={chats[chatIndex].id}
+        currentUserEmail={currentUser?.email || ""}
+      />
     </div>
   );
 }

@@ -3,7 +3,6 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Image from "next/image";
 import { ReactNode } from "react";
 import * as React from "react";
-import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 
@@ -11,9 +10,15 @@ interface Props {
   actions?: ReactNode[];
   heading?: string;
   accountImgUrl?: string;
+  menuItems?: MenuItemProps[];
 }
 
-const Header = ({ actions, heading, accountImgUrl }: Props) => {
+type MenuItemProps = {
+  title: string;
+  onClick(): void;
+};
+
+const Header = ({ actions, heading, accountImgUrl, menuItems }: Props) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -28,6 +33,7 @@ const Header = ({ actions, heading, accountImgUrl }: Props) => {
       <div className="flex items-center gap-2">
         {accountImgUrl ? (
           <Image
+            className="rounded-full"
             alt="account-image"
             src={accountImgUrl}
             width={45}
@@ -41,33 +47,40 @@ const Header = ({ actions, heading, accountImgUrl }: Props) => {
       </div>
       <div className="flex flex-row gap-7 justify-evenly">
         {actions}
-        <button
-          id="demo-positioned-button"
-          aria-controls={open ? "demo-positioned-menu" : undefined}
-          aria-haspopup="true"
-          aria-expanded={open ? "true" : undefined}
-          onClick={handleClick}
-        >
-          <MoreVertIcon sx={{ color: "white" }} />
-        </button>
-        <Menu
-          id="demo-positioned-menu"
-          aria-labelledby="demo-positioned-button"
-          anchorEl={anchorEl}
-          open={open}
-          onClose={handleClose}
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "right",
-          }}
-          transformOrigin={{
-            vertical: "top",
-            horizontal: "right",
-          }}
-        >
-          <MenuItem onClick={handleClose}>Novo Chat</MenuItem>
-          <MenuItem onClick={handleClose}>Sair</MenuItem>
-        </Menu>
+        {menuItems && menuItems.length > 0 && (
+          <>
+            <button
+              id="demo-positioned-button"
+              aria-controls={open ? "demo-positioned-menu" : undefined}
+              aria-haspopup="true"
+              aria-expanded={open ? "true" : undefined}
+              onClick={handleClick}
+            >
+              <MoreVertIcon sx={{ color: "white" }} />
+            </button>
+            <Menu
+              id="demo-positioned-menu"
+              aria-labelledby="demo-positioned-button"
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleClose}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "right",
+              }}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "right",
+              }}
+            >
+              {menuItems.map((item, i) => (
+                <MenuItem key={i} onClick={item.onClick}>
+                  {item.title}
+                </MenuItem>
+              ))}
+            </Menu>
+          </>
+        )}
       </div>
     </div>
   );

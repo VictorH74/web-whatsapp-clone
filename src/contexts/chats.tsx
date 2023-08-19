@@ -1,7 +1,15 @@
 "use client";
 import { db } from "@/services/firebase";
 import { ReactNode, createContext, useEffect, useState } from "react";
-import { collection, where, onSnapshot, query } from "firebase/firestore";
+import {
+  collection,
+  where,
+  onSnapshot,
+  query,
+  doc,
+  setDoc,
+  Timestamp,
+} from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { getAuth } from "firebase/auth";
 
@@ -9,7 +17,7 @@ interface ChatsProvider {
   chats: ChatBox[] | [];
   currentChatIndex: number | null;
   isLoading: boolean;
-  setCurrentChatIndexState: (index: number) => void,
+  setCurrentChatIndexState: (index: number) => void;
 }
 
 export const ChatsCtx = createContext<ChatsProvider>({
@@ -31,25 +39,32 @@ export default function ChatsProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-
     if (auth.currentUser === null) {
       router.push("/login");
       return;
     }
 
-    console.log(auth.currentUser);
+    let { displayName, email, photoURL } = auth.currentUser;
+
+    let ref = doc(db, "users", email as string);
+
+    setDoc(ref, {
+      name: displayName,
+      createdAt: Timestamp.fromDate(new Date()),
+      email,
+      photoUrl: photoURL,
+    });
 
     const q = query(
       collection(db, "chats"),
-      where("users", "array-contains", auth.currentUser.email)
+      where("users", "array-contains", { email, name: displayName })
     );
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const messages: any[] = [];
+      const chatDatas: any[] = [];
       querySnapshot.forEach((doc) => {
-        messages.push({ id: doc.id, ...doc.data() });
+        chatDatas.push({ id: doc.id, ...doc.data() });
       });
-      // console.log(messages);
-      setChats(() => messages);
+      setChats(() => chatDatas);
       setIsLoading(false);
     });
 
@@ -59,7 +74,9 @@ export default function ChatsProvider({ children }: { children: ReactNode }) {
   }, [auth, router]);
 
   return (
-    <ChatsCtx.Provider value={{ chats, currentChatIndex, isLoading, setCurrentChatIndexState }}>
+    <ChatsCtx.Provider
+      value={{ chats, currentChatIndex, isLoading, setCurrentChatIndexState }}
+    >
       {children}
     </ChatsCtx.Provider>
   );

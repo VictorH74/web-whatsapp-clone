@@ -3,6 +3,8 @@ import { auth, provider } from "@/services/firebase";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { useRouter } from "next/navigation";
 
+// #CE4736
+
 export default function LoginPage() {
     const router = useRouter()
   const signInwithGoogle = () => {
@@ -31,7 +33,7 @@ export default function LoginPage() {
 
   return (
     <main className="h-screen w-screen grid place-items-center">
-      <button onClick={signInwithGoogle}>login with google</button>
+      <button className="text-white bg-[#CE4736] p-3 rounded-md hover:scale-105 duration-200" onClick={signInwithGoogle}>login with google</button>
     </main>
   );
 }
