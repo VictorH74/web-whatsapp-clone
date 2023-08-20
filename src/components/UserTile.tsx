@@ -22,7 +22,11 @@ export default function UserTile({
       removeUserToSelecteds(user);
       return;
     }
-    addUserToSelecteds({ name: user.name, email: user.email });
+    addUserToSelecteds({
+      name: user.name,
+      email: user.email,
+      photoUrl: user.photoUrl,
+    });
   };
 
   return (

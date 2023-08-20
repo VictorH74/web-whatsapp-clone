@@ -3,7 +3,11 @@ type ChatBox = {
   createdAt: Date;
   messages: Message[] | [];
   users: SimpleUser[];
+  type: "duo" | "group";
+  admList: string[];
+  colors?: { [email: string]: number };
 };
+
 
 type User = {
   photoUrl?: string;
@@ -12,7 +16,7 @@ type User = {
   createdAt: Date;
 };
 
-type SimpleUser = Pick<User, "name" | "email">;
+type SimpleUser = Pick<User, "name" | "email" | "photoUrl">;
 
 type Message = {
   sender: string;

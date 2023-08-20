@@ -57,7 +57,11 @@ export default function ChatsProvider({ children }: { children: ReactNode }) {
 
     const q = query(
       collection(db, "chats"),
-      where("users", "array-contains", { email, name: displayName })
+      where("users", "array-contains", {
+        email,
+        name: displayName,
+        photoUrl: photoURL,
+      })
     );
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const chatDatas: any[] = [];

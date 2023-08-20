@@ -67,14 +67,30 @@ export default function NewChat({ show, setShow }: Props) {
     e.preventDefault();
     setIsLoading(true);
 
+    let newChatUsers: SimpleUser[] = [
+      {
+        email: currentUser?.email || "",
+        name: currentUser?.displayName || "",
+        photoUrl: currentUser?.photoURL || "",
+      },
+      ...selectedUsers,
+    ];
+
+    let userColors: { [email: string]: number } = {};
+
+    const isGroup = newChatUsers.length > 2;
+
+    if (isGroup) {
+      newChatUsers.forEach((u) => {
+        userColors[u.email] = Math.floor(Math.random() * 10);
+      });
+    }
+
     const newChat: Omit<ChatBox, "createdAt" | "id"> = {
-      users: [
-        {
-          email: currentUser?.email || "",
-          name: currentUser?.displayName || "",
-        },
-        ...selectedUsers,
-      ],
+      users: newChatUsers,
+      admList: [currentUser?.email || "anyone@email.com"],
+      type: isGroup ? "group" : "duo",
+      colors: userColors,
       messages: [
         {
           content: `Nova conversa criada por ${
@@ -100,7 +116,7 @@ export default function NewChat({ show, setShow }: Props) {
 
   return (
     <div
-      className={`bg-[#111B21] absolute inset-0 ${
+      className={`bg-[#111B21] absolute inset-0 z-50 ${
         show ? "" : "-translate-x-full"
       } duration-200`}
     >
