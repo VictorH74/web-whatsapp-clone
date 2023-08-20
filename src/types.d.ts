@@ -3,10 +3,12 @@ type ChatBox = {
   createdAt: Date;
   messages: Message[] | [];
   users: SimpleUser[];
-  type: "duo" | "group";
+  type: ChatType;
   admList: string[];
   colors?: { [email: string]: number };
 };
+
+type ChatType = "duo" | "group"
 
 
 type User = {

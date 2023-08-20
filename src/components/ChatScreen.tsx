@@ -5,6 +5,7 @@ import ChatScreenFooter from "./ChatScreenFooter";
 import { deleteDoc, doc } from "firebase/firestore";
 import { db } from "@/services/firebase";
 import Image from "next/image";
+import Message from "./Message";
 
 const colors: string[] = [
   "green-400",
@@ -75,29 +76,15 @@ export default function ChatScreen() {
       <div className="flex flex-col grow justify-end text-white overflow-y-auto custom-scrollbar">
         <div className="flex flex-col gap-3 p-4 overflow-y-auto">
           {thisChat.messages.map((m) => (
-            <div
-              className={`bg-[#005C4B] text-sm font-normal p-2 rounded-md w-auto flex flex-col ${
-                m.sender === "system"
-                  ? "self-center bg-gray-800"
-                  : currentUser?.email === m.sender
-                  ? "self-end"
-                  : "self-start bg-[#202C33]"
-              }`}
+            <Message
               key={m.createdAt.toString()}
-            >
-              {thisChat.type === "group" &&
-                currentUser?.email !== m.sender &&
-                m.sender !== "system" && (
-                  <p
-                    className={`text-${
-                      colors[thisChat.colors ? thisChat.colors[m.sender] : 0]
-                    }`}
-                  >
-                    {m.sender}
-                  </p>
-                )}
-              <p>{m.content}</p>
-            </div>
+              message={m}
+              owner={currentUser?.email === m.sender}
+              type={thisChat.type}
+              senderNameColor={
+                colors[thisChat.colors ? thisChat.colors[m.sender] : 0]
+              }
+            />
           ))}
         </div>
       </div>
