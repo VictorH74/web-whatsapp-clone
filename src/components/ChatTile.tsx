@@ -1,4 +1,3 @@
-import useChats from "@/hooks/useChats";
 import { Chat } from "@/types/chat";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import GroupsIcon from "@mui/icons-material/Groups";
@@ -8,7 +7,6 @@ import { useState } from "react";
 
 interface Props {
   data: Chat;
-  index: number;
   last: boolean;
   handleClick: () => void;
 }
@@ -16,7 +14,7 @@ interface Props {
 const chatTileAfterStyle: string =
   "after:content-[''] after:absolute after:bottom-[-1px] after:left-0 after:right-0 after:bg-[#202C33] after:h-[1px]";
 
-export default function ChatTile({ data, index, last, handleClick }: Props) {
+export default function ChatTile({ data, last, handleClick }: Props) {
   const { currentUser } = getAuth();
   const [chatPhoto, setchatPhoto] = useState<string | null>(null);
 

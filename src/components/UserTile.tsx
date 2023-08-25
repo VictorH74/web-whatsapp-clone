@@ -1,3 +1,4 @@
+import { User } from "@/types/user";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import Image from "next/image";
@@ -6,8 +7,8 @@ interface Props {
   user: User;
   last: boolean;
   selected: boolean;
-  addUserToSelecteds: (email: SimpleUser) => void;
-  removeUserToSelecteds: (email: SimpleUser) => void;
+  addUserToSelecteds: (email: User) => void;
+  removeUserToSelecteds: (email: User) => void;
 }
 
 export default function UserTile({
@@ -22,11 +23,7 @@ export default function UserTile({
       removeUserToSelecteds(user);
       return;
     }
-    addUserToSelecteds({
-      name: user.name,
-      email: user.email,
-      photoUrl: user.photoUrl,
-    });
+    addUserToSelecteds(user);
   };
 
   return (
@@ -43,11 +40,11 @@ export default function UserTile({
         />
       )}
       <div className="p-2">
-        {user.photoUrl ? (
+        {user.photoURL ? (
           <Image
             className="rounded-full"
             alt="account-image"
-            src={user.photoUrl}
+            src={user.photoURL}
             width={55}
             height={55}
           />
@@ -61,7 +58,7 @@ export default function UserTile({
           !last ? "border-b-[1px] border-b-[#202C33]" : ""
         }`}
       >
-        <h2 className="text-white">{user.name}</h2>
+        <h2 className="text-white">{user.displayName}</h2>
         <p className={`text-gray-300 text-sm`}>{user.email}</p>
       </div>
     </div>

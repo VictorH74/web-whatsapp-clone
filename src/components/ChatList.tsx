@@ -13,7 +13,6 @@ export default function ChatList({ chatList, handleChatClick }: Props) {
         <ChatTile
           key={chat.id}
           data={chat}
-          index={i}
           last={i === chatList.length - 1}
           handleClick={() => handleChatClick(chat)}
         />

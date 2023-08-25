@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useDebounce } from "react-use";
 import {
@@ -11,7 +11,7 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { auth, db } from "@/services/firebase";
+import { db } from "@/services/firebase";
 import UserTile from "./UserTile";
 import { getAuth } from "firebase/auth";
 import Loading from "./Loading";
