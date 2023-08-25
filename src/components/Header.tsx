@@ -8,7 +8,7 @@ import MenuItem from "@mui/material/MenuItem";
 import GroupsIcon from "@mui/icons-material/Groups";
 
 interface Props {
-  type?: "account" | "duo" | "group";
+  type?: "account" | 1 | 2;
   actions?: ReactNode[];
   heading?: string;
   accountImgUrl?: string;
@@ -39,7 +39,7 @@ const Header = ({
   return (
     <div className="w-full max-h-16 bg-[#222E35] flex flex-row items-center py-1 px-3 justify-between text-white">
       <div className="flex items-center gap-2">
-        {type === "group" ? (
+        {type === 2 ? (
           <div className="m-[3px] grid place-items-center bg-white w-[39px] h-[39px] rounded-full">
             <GroupsIcon sx={{ color: "black", fontSize: 20 }} />
           </div>

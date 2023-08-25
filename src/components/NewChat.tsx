@@ -2,9 +2,11 @@ import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useDebounce } from "react-use";
 import {
+  DocumentReference,
   Timestamp,
   addDoc,
   collection,
+  doc,
   getDocs,
   query,
   where,
@@ -13,6 +15,8 @@ import { auth, db } from "@/services/firebase";
 import UserTile from "./UserTile";
 import { getAuth } from "firebase/auth";
 import Loading from "./Loading";
+import { User } from "@/types/user";
+import { Chat, Message } from "@/types/chat";
 
 interface Props {
   show: boolean;
@@ -23,7 +27,7 @@ export default function NewChat({ show, setShow }: Props) {
   const [emailValue, setEmailValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
-  const [selectedUsers, setSelectedUsers] = useState<SimpleUser[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
   const { currentUser } = getAuth();
 
   const fetchUsers = async () => {
@@ -55,11 +59,11 @@ export default function NewChat({ show, setShow }: Props) {
     [emailValue]
   );
 
-  const addUserToSelecteds = (userObj: SimpleUser) => {
+  const addUserToSelecteds = (userObj: User) => {
     setSelectedUsers((prev) => [...prev, userObj]);
   };
 
-  const removeUserToSelecteds = (userObj: SimpleUser) => {
+  const removeUserToSelecteds = (userObj: User) => {
     setSelectedUsers((prev) => prev.filter((u) => u.email !== userObj.email));
   };
 
@@ -67,42 +71,46 @@ export default function NewChat({ show, setShow }: Props) {
     e.preventDefault();
     setIsLoading(true);
 
-    let newChatUsers: SimpleUser[] = [
-      {
-        email: currentUser?.email || "",
-        name: currentUser?.displayName || "",
-        photoUrl: currentUser?.photoURL || "",
-      },
-      ...selectedUsers,
-    ];
-
-    let userColors: { [email: string]: number } = {};
-
-    const isGroup = newChatUsers.length > 2;
-
-    if (isGroup) {
-      newChatUsers.forEach((u) => {
-        userColors[u.email] = Math.floor(Math.random() * 10);
-      });
+    if (!currentUser?.email) {
+      alert("Email não encontrado");
+      return;
+    }
+    if (!currentUser?.displayName) {
+      alert("Nome do usuário não encontrado");
+      return;
     }
 
-    const newChat: Omit<ChatBox, "createdAt" | "id"> = {
-      users: newChatUsers,
-      admList: [currentUser?.email || "anyone@email.com"],
-      type: isGroup ? "group" : "duo",
-      colors: userColors,
-      messages: [
-        {
-          content: `Nova conversa criada por ${
-            currentUser?.displayName || currentUser?.email || "-"
-          }`,
-          sender: "system",
-          vizualizedBy: [],
-          createdAt: Timestamp.fromDate(new Date()),
-        },
-      ],
+    const createUserRef = (email: string) => doc(db, "user", email);
+
+    let userRefs: DocumentReference[] = [
+      createUserRef(currentUser.email),
+      ...selectedUsers.map((u) => createUserRef(u.email)),
+    ];
+
+    const owner = currentUser?.email;
+
+    const newChat: Omit<Chat, "createdAt" | "id"> = {
+      members: userRefs,
+      admList: [createUserRef(owner)],
+      type: 2,
+      createdBy: owner,
+      name: "Group Name",
     };
-    await addDoc(collection(db, "chats"), newChat);
+
+    const createdChatRef = await addDoc(collection(db, "chats"), newChat);
+
+    const newMessage: Message = {
+      content: `Nova conversa criada por ${currentUser?.displayName}`,
+      sender: "system",
+      readBy: [],
+      sentAt: Timestamp.fromDate(new Date()),
+    };
+
+    await addDoc(
+      collection(db, `/message/${createdChatRef.id}/messages`),
+      newMessage
+    );
+
     close();
   };
 

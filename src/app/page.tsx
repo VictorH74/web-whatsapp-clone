@@ -1,38 +1,76 @@
 "use client";
 
-import useChats from "../hooks/useChats";
-import Chats from "@/components/Chats";
-import Providers from "@/components/Providers";
+import ChatList from "@/components/ChatList";
 import Header from "@/components/Header";
 import ChatIcon from "@mui/icons-material/Chat";
 import TrackChangesIcon from "@mui/icons-material/TrackChanges";
 import GroupsIcon from "@mui/icons-material/Groups";
-import ChatScreen from "@/components/ChatScreen";
+import ChatBox from "@/components/ChatBox";
 import { getAuth } from "firebase/auth";
 import NewChat from "@/components/NewChat";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Loading from "@/components/Loading";
+import * as firebase from "firebase/firestore";
+import { db } from "@/services/firebase";
+import { Chat } from "@/types/chat";
 
 const Main = () => {
-  const { isLoading, chats } = useChats();
   const [show, setShow] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const auth = getAuth();
   const router = useRouter();
   const { currentUser } = getAuth();
+  const [chats, setChats] = useState<Chat[]>([]);
+  const [currentChat, setCurrentChat] = useState<Chat | null>(null);
 
-  const handleSetShow = useCallback(
-    (value: boolean) => {
-      setShow(() => value);
-    },
-    []
-  );
+  const handleSetShow = useCallback((value: boolean) => {
+    setShow(() => value);
+  }, []);
+
+  useEffect(() => {
+    if (auth.currentUser === null) {
+      router.push("/login");
+      return;
+    }
+
+    let { displayName, email, photoURL } = auth.currentUser;
+
+    if (!email) return console.error("Email must not be null");
+
+    let userRef = firebase.doc(db, "user", email);
+
+    firebase.setDoc(userRef, {
+      displayName,
+      email,
+      photoURL,
+    });
+
+    const q = firebase.query(
+      firebase.collection(db, "chat"),
+      firebase.where("members", "array-contains", userRef)
+    );
+
+    const unsubscribe = firebase.onSnapshot(q, (querySnapshot) => {
+      const chatDatas: any[] = [];
+      querySnapshot.forEach((doc) => {
+        chatDatas.push({ id: doc.id, ...doc.data() });
+      });
+      console.log(chatDatas);
+      setChats(() => chatDatas);
+      setIsLoading(false);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [auth, router]);
 
   return (
     <>
       {isLoading ? (
         <main className="w-screen h-screen grid place-items-center">
-          < Loading className="w-12 h-12" />
+          <Loading className="w-12 h-12" />
         </main>
       ) : (
         <main className="flex flex-row overflow-hidden">
@@ -64,9 +102,12 @@ const Main = () => {
                 },
               ]}
             />
-            <Chats chatList={chats} />
+            <ChatList
+              chatList={chats}
+              handleChatClick={(chat: Chat) => setCurrentChat(chat)}
+            />
           </aside>
-           <ChatScreen />
+          <ChatBox chat={currentChat} />
         </main>
       )}
     </>
@@ -74,9 +115,5 @@ const Main = () => {
 };
 
 export default function Home() {
-  return (
-    <Providers>
-      <Main />
-    </Providers>
-  );
+  return <Main />;
 }

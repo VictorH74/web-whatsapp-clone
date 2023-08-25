@@ -3,41 +3,40 @@ import AddIcon from "@mui/icons-material/Add";
 import MicIcon from "@mui/icons-material/Mic";
 import SendIcon from "@mui/icons-material/Send";
 import { ChangeEvent, FormEvent, useState } from "react";
-import { Timestamp, arrayUnion, doc, updateDoc } from "firebase/firestore";
+import { Timestamp, addDoc, collection, doc } from "firebase/firestore";
 import { db } from "@/services/firebase";
+import { Message } from "@/types/chat";
 
 interface Props {
   chatId: string;
   currentUserEmail: string;
 }
 
-export default function ChatScreenFooter({ chatId, currentUserEmail }: Props) {
-  const [text, setText] = useState("");
+export default function ChatBoxFooter({ chatId, currentUserEmail }: Props) {
+  const [content, setContent] = useState("");
 
   const handleChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
-    setText(event.target.value);
+    setContent(event.target.value);
     event.target.style.height = "auto";
     event.target.style.height = `${event.target.scrollHeight}px`;
   };
 
-  // oHp840Jx7cmwKkqhctPe
-
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    setText(() => "")
+    setContent(() => "");
+
     try {
-      const docRef = doc(db, "chats", chatId);
-      await updateDoc(docRef, {
-        messages: arrayUnion({
-          content: text,
-          createdAt: Timestamp.fromDate(new Date),
-          sender: currentUserEmail,
-          visualizedBy: [currentUserEmail],
-        }),
-      });
+      const newMessage: Message = {
+        content,
+        sender: doc(db, "user", currentUserEmail),
+        readBy: [doc(db, "user", currentUserEmail)],
+        sentAt: Timestamp.fromDate(new Date()),
+      };
+
+      await addDoc(collection(db, `/message/${chatId}/messages`), newMessage);
     } catch (e) {
-        alert("Error:")
-        console.log(e)
+      alert("Error:");
+      console.log(e);
     }
   };
 
@@ -51,11 +50,11 @@ export default function ChatScreenFooter({ chatId, currentUserEmail }: Props) {
           rows={1}
           className="p-3 w-full text-white outline-none bg-[#2A3942] rounded-md resize-none overflow-hidden min-h-[36px] max-h-36 overflow-y-auto"
           placeholder="Mensagem"
-          value={text}
+          value={content}
           onChange={handleChange}
         />
 
-        {text ? (
+        {content ? (
           <button type="submit">
             <SendIcon sx={{ color: "#8696A0", fontSize: 30 }} />
           </button>
