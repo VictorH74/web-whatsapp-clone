@@ -1,21 +1,13 @@
-import { Chat } from "@/types/chat";
 import ChatTile from "./ChatTile";
+import useChats from "@/hooks/useChats";
 
-interface Props {
-  chatList: Chat[];
-  handleChatClick: (chat: Chat) => void
-}
+export default function ChatList() {
+  const { chats } = useChats();
 
-export default function ChatList({ chatList, handleChatClick }: Props) {
   return (
     <div className="overflow-auto h-full">
-      {chatList.map((chat, i) => (
-        <ChatTile
-          key={chat.id}
-          data={chat}
-          last={i === chatList.length - 1}
-          handleClick={() => handleChatClick(chat)}
-        />
+      {chats.map((chat, i) => (
+        <ChatTile key={chat.id} data={chat} last={i === chats.length - 1} />
       ))}
     </div>
   );

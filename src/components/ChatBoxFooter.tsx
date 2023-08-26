@@ -10,9 +10,10 @@ import { Message } from "@/types/chat";
 interface Props {
   chatId: string;
   currentUserEmail: string;
+  scrollToBottom: () => void;
 }
 
-export default function ChatBoxFooter({ chatId, currentUserEmail }: Props) {
+export default function ChatBoxFooter({ chatId, currentUserEmail, scrollToBottom }: Props) {
   const [content, setContent] = useState("");
 
   const handleChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
@@ -34,6 +35,7 @@ export default function ChatBoxFooter({ chatId, currentUserEmail }: Props) {
       };
 
       await addDoc(collection(db, `/message/${chatId}/messages`), newMessage);
+      scrollToBottom()
     } catch (e) {
       alert("Error:");
       console.log(e);

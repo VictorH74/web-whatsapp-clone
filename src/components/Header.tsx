@@ -37,7 +37,7 @@ const Header = ({
   };
 
   return (
-    <div className="w-full max-h-16 bg-[#222E35] flex flex-row items-center py-1 px-3 justify-between text-white">
+    <div className="w-full max-h-16 bg-[#222E35] flex flex-row items-center py-3 px-4 justify-between text-white">
       <div className="flex items-center gap-2">
         {type === 2 ? (
           <div className="m-[3px] grid place-items-center bg-white w-[39px] h-[39px] rounded-full">
@@ -48,8 +48,8 @@ const Header = ({
             className="rounded-full"
             alt="account-image"
             src={accountImgUrl}
-            width={45}
-            height={45}
+            width={40}
+            height={40}
           />
         ) : (
           <AccountCircleIcon sx={{ color: "white", fontSize: "45px" }} />

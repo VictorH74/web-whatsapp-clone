@@ -9,6 +9,7 @@ import {
   doc,
   getDocs,
   query,
+  setDoc,
   where,
 } from "firebase/firestore";
 import { db } from "@/services/firebase";
@@ -33,7 +34,7 @@ export default function NewChat({ show, setShow }: Props) {
   const fetchUsers = async () => {
     setIsLoading(true);
     const q = query(
-      collection(db, "users"),
+      collection(db, "user"),
       where("email", ">=", emailValue),
       where("email", "<=", emailValue + "\uf8ff"),
       where("email", "!=", currentUser?.email || "")
@@ -97,7 +98,7 @@ export default function NewChat({ show, setShow }: Props) {
       name: "Group Name",
     };
 
-    const createdChatRef = await addDoc(collection(db, "chats"), newChat);
+    const createdChatRef = await addDoc(collection(db, "chat"), newChat);
 
     const newMessage: Message = {
       content: `Nova conversa criada por ${currentUser?.displayName}`,
@@ -105,7 +106,7 @@ export default function NewChat({ show, setShow }: Props) {
       readBy: [],
       sentAt: Timestamp.fromDate(new Date()),
     };
-
+    
     await addDoc(
       collection(db, `/message/${createdChatRef.id}/messages`),
       newMessage
