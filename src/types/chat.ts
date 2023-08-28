@@ -1,7 +1,7 @@
 import { DocumentReference, Timestamp } from "firebase/firestore";
 
 export type Chat = {
-  id: string;
+  id?: string;
   createdAt: Timestamp;
   createdBy: string;
   members: DocumentReference[];

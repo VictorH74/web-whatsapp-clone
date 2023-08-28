@@ -6,11 +6,17 @@ import { useRouter } from "next/navigation";
 import { getAuth } from "firebase/auth";
 import { Chat } from "@/types/chat";
 
+type HeaderDataType =
+  | [firebase.DocumentReference, firebase.DocumentReference]
+  | null;
+
 interface ChatsProvider {
   chats: Chat[] | [];
   currentChat: Chat | null;
   isLoading: boolean;
   setCurrentChat: (chat: Chat | null) => void;
+  headerData: HeaderDataType;
+  setHeaderData: (data: HeaderDataType | null) => void;
 }
 
 export const ChatsCtx = createContext<ChatsProvider>({
@@ -18,17 +24,26 @@ export const ChatsCtx = createContext<ChatsProvider>({
   currentChat: null,
   isLoading: true,
   setCurrentChat: () => null,
+  headerData: null,
+  setHeaderData: () => null,
 });
 
 export default function ChatsProvider({ children }: { children: ReactNode }) {
   const [chats, setChats] = useState<Chat[] | []>([]);
   const [currentChat, setCurrentChatState] = useState<Chat | null>(null);
+  const [headerData, setHeaderDataState] = useState<HeaderDataType | null>(
+    null
+  );
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const auth = getAuth();
 
   const setCurrentChat = (chat: Chat | null) => {
     setCurrentChatState(() => chat);
+  };
+
+  const setHeaderData = (data: HeaderDataType | null) => {
+    setHeaderDataState(() => data);
   };
 
   useEffect(() => {
@@ -71,7 +86,14 @@ export default function ChatsProvider({ children }: { children: ReactNode }) {
 
   return (
     <ChatsCtx.Provider
-      value={{ chats, currentChat, isLoading, setCurrentChat }}
+      value={{
+        chats,
+        currentChat,
+        isLoading,
+        setCurrentChat,
+        headerData,
+        setHeaderData,
+      }}
     >
       {children}
     </ChatsCtx.Provider>

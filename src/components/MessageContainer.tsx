@@ -8,38 +8,46 @@ import { memo, useEffect, useState } from "react";
 interface Props {
   message: Message;
   type: ChatType;
-  owner: boolean;
   senderNameColor: string;
 }
 
 export default memo(function MessageContainer({
   message,
-  owner,
   type,
   senderNameColor,
 }: Props) {
   const [sender, setSender] = useState<string | undefined>(undefined);
-  const date = new Date(message.sentAt.seconds * 1000);
+  const [owner, setOwner] = useState<boolean>(false);
   const { currentUser } = getAuth();
 
+  const date = new Date(message.sentAt.seconds * 1000);
   const hour = date.getHours();
   const minute = date.getMinutes();
 
-  const getSender = async () => {
-    if (owner) {
-      setSender(currentUser?.displayName || "-");
-      return
-    }
-    if (message.sender instanceof DocumentReference) {
-      const data = await getDoc(message.sender);
-      const user = data.data() as User;
-      return setSender(user.displayName);
-    }
-    setSender(message.sender);
+  const getSender = async (documentRef: DocumentReference) => {
+    const data = await getDoc(documentRef);
+    const user = data.data() as User;
+    setSender(user.displayName);
   };
 
   useEffect(() => {
-    getSender();
+    if (message.sender instanceof DocumentReference) {
+      if (currentUser?.email === message.sender.id) {
+        setSender(currentUser?.displayName || "-");
+        setOwner(true);
+        return;
+      }
+
+      if (type !== 2) {
+        setSender("x");
+        return;
+      }
+
+      getSender(message.sender);
+      return;
+    }
+
+    setSender(message.sender);
   }, []);
 
   if (!sender) {

@@ -38,7 +38,6 @@ export default forwardRef(function ChatBoxBody(
           <MessageContainer
             key={m.sentAt.toString()}
             message={m}
-            owner={currentUser?.email === m.sender}
             type={type}
             senderNameColor={colors[0]}
           />

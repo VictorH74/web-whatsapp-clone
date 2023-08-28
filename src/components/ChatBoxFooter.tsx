@@ -3,18 +3,31 @@ import AddIcon from "@mui/icons-material/Add";
 import MicIcon from "@mui/icons-material/Mic";
 import SendIcon from "@mui/icons-material/Send";
 import { ChangeEvent, FormEvent, useState } from "react";
-import { Timestamp, addDoc, collection, doc } from "firebase/firestore";
+import {
+  DocumentReference,
+  Timestamp,
+  addDoc,
+  collection,
+  doc,
+  getDoc,
+  setDoc,
+} from "firebase/firestore";
 import { db } from "@/services/firebase";
-import { Message } from "@/types/chat";
+import { Chat, Message } from "@/types/chat";
+import { getAuth } from "firebase/auth";
+import useChats from "@/hooks/useChats";
 
 interface Props {
-  chatId: string;
   currentUserEmail: string;
   scrollToBottom: () => void;
 }
 
-export default function ChatBoxFooter({ chatId, currentUserEmail, scrollToBottom }: Props) {
+export default function ChatBoxFooter({
+  currentUserEmail,
+  scrollToBottom,
+}: Props) {
   const [content, setContent] = useState("");
+  const { currentChat, setCurrentChat } = useChats();
 
   const handleChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     setContent(event.target.value);
@@ -26,6 +39,8 @@ export default function ChatBoxFooter({ chatId, currentUserEmail, scrollToBottom
     event.preventDefault();
     setContent(() => "");
 
+    let chatId = currentChat?.id;
+
     try {
       const newMessage: Message = {
         content,
@@ -34,8 +49,54 @@ export default function ChatBoxFooter({ chatId, currentUserEmail, scrollToBottom
         sentAt: Timestamp.fromDate(new Date()),
       };
 
+      if (!chatId) {
+        if (!currentChat) return;
+
+        const newChatId = currentChat.members.map((m) => m.id).join("+");
+
+        const chatRef = doc(db, "chat", newChatId);
+
+        const retrievedChat = await getDoc(chatRef);
+
+        if (retrievedChat.exists()) {
+          setCurrentChat({
+            id: retrievedChat.id,
+            ...retrievedChat.data(),
+          } as Chat);
+
+          await setDoc(doc(db, "message", retrievedChat.id), {});
+          await addDoc(
+            collection(db, `/message/${retrievedChat.id}/messages`),
+            newMessage
+          );
+          await setDoc(
+            doc(db, "chat", retrievedChat.id),
+            {
+              recentMessage: newMessage,
+            },
+            { merge: true }
+          );
+
+          return;
+        }
+
+        await setDoc(chatRef, currentChat);
+        const newChat: Chat = { id: newChatId, ...currentChat } as Chat;
+        setCurrentChat(newChat);
+        chatId = newChatId;
+        await setDoc(doc(db, "message", chatId), {});
+      }
+
       await addDoc(collection(db, `/message/${chatId}/messages`), newMessage);
-      scrollToBottom()
+      await setDoc(
+        doc(db, "chat", chatId),
+        {
+          recentMessage: newMessage,
+        },
+        { merge: true }
+      );
+
+      scrollToBottom();
     } catch (e) {
       alert("Error:");
       console.log(e);

@@ -8,10 +8,10 @@ import MenuItem from "@mui/material/MenuItem";
 import GroupsIcon from "@mui/icons-material/Groups";
 
 interface Props {
-  type?: "account" | 1 | 2;
+  type?: 0 | 1 | 2;
   actions?: ReactNode[];
   heading?: string;
-  accountImgUrl?: string;
+  imgSrc?: string;
   menuItems?: MenuItemProps[];
 }
 
@@ -23,9 +23,9 @@ type MenuItemProps = {
 const Header = ({
   actions,
   heading,
-  accountImgUrl,
+  imgSrc,
   menuItems,
-  type = "account",
+  type = 0,
 }: Props) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -43,11 +43,11 @@ const Header = ({
           <div className="m-[3px] grid place-items-center bg-white w-[39px] h-[39px] rounded-full">
             <GroupsIcon sx={{ color: "black", fontSize: 20 }} />
           </div>
-        ) : accountImgUrl ? (
+        ) : imgSrc ? (
           <Image
             className="rounded-full"
             alt="account-image"
-            src={accountImgUrl}
+            src={imgSrc}
             width={40}
             height={40}
           />
@@ -86,7 +86,13 @@ const Header = ({
               }}
             >
               {menuItems.map((item, i) => (
-                <MenuItem key={i} onClick={item.onClick}>
+                <MenuItem
+                  key={i}
+                  onClick={() => {
+                    item.onClick();
+                    handleClose();
+                  }}
+                >
                   {item.title}
                 </MenuItem>
               ))}
