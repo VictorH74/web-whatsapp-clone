@@ -62,12 +62,26 @@ export default function ChatsProvider({ children }: { children: ReactNode }) {
 
     if (!email) return console.error("Email must not be null");
 
-    let userRef = firebase.doc(db, "user", email);
+    const handleBeforeUnload = () => {
+      if (!email) return;
+      
+      service.createOrUpdateUser(
+        {
+          email: email,
+          online: false,
+          lastTimeOnline: new Date(),
+        },
+        true
+      );
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
 
-    firebase.setDoc(userRef, {
-      displayName,
+    service.createOrUpdateUser({
+      displayName: displayName || undefined,
       email,
-      photoURL,
+      photoURL: photoURL || undefined,
+      online: true,
+      lastTimeOnline: new Date(),
     });
 
     const q = firebase.query(
@@ -87,6 +101,7 @@ export default function ChatsProvider({ children }: { children: ReactNode }) {
 
     return () => {
       unsubscribe();
+      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, [auth, router]);
 

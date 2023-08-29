@@ -8,12 +8,13 @@ import { getAuth } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import NewPrivateChat from "./NewPrivateChat";
 import useAsideState from "@/hooks/useAsideState";
+import useChats from "@/hooks/useChats";
 
 export default function Aside() {
-  const auth = getAuth();
+  const { currentUser, signOut } = getAuth();
   const router = useRouter();
   const { setAsideContentNumber } = useAsideState();
-  const { currentUser } = getAuth();
+  const { service } = useChats();
 
   return (
     <aside className="relative border-r-[1px] border-r-zinc-700 min-w-[340px] w-[620px] max-h-screen bg-[#111B21] flex flex-col custom-scrollbar">
@@ -44,7 +45,18 @@ export default function Aside() {
           },
           {
             onClick() {
-              auth.signOut();
+              const email = currentUser?.email;
+              if (email) {
+                service.createOrUpdateUser(
+                  {
+                    email: email,
+                    online: false,
+                    lastTimeOnline: new Date(),
+                  },
+                  true
+                );
+              }
+              signOut();
               router.replace("/login");
             },
             title: "Sair",

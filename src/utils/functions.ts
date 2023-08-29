@@ -16,3 +16,10 @@ export const getDate = (date?: Date): { hour: number; minute: number } => {
 
 export const generateChatId = (emails: string[]) =>
   emails.map((id) => id).join("+");
+
+export const formatNumber = (number: number) => {
+  if (number < 10) {
+    return "0" + number;
+  }
+  return `${number}`;
+};

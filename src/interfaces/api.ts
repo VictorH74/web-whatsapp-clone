@@ -19,6 +19,6 @@ export default interface Api {
   ): void;
 
   getUsersByEmail(email: string, ownerEmail?: string): Promise<User[]>;
-  createOrUpdateUser(id: string): Promise<User>;
+  createOrUpdateUser(data: Pick<User, "email"> & Partial<Omit<User, "email">>, merge?: boolean): void;
   retrieveUser(id: string): Promise<User | undefined>;
 }

@@ -5,7 +5,7 @@ import { getAuth } from "firebase/auth";
 import Image from "next/image";
 import { cache, useEffect, useRef, useState } from "react";
 import { EmptyUserImgIcon, GroupIconIcon } from "./IconPresets";
-import { getDate } from "@/utils/functions";
+import { formatNumber, getDate } from "@/utils/functions";
 
 interface Props {
   data: Chat;
@@ -25,7 +25,7 @@ export default function ChatListItem({ data, isLastItem }: Props) {
     setLeft(() => left as number);
   }, [ref]);
 
-  const date = getDate(data.recentMessage?.sentAt)
+  const date = getDate(data.recentMessage?.sentAt);
 
   const fetchUser = cache(async () => {
     const { currentUser } = getAuth();
@@ -34,7 +34,7 @@ export default function ChatListItem({ data, isLastItem }: Props) {
 
     const userId = data.members.filter((id) => id !== currentUser.email)[0];
 
-    const user = await service.retrieveUser(userId)
+    const user = await service.retrieveUser(userId);
 
     setChatPhoto(user?.photoURL);
     setChatTitle(user?.displayName || "Usuário não encontrado");
@@ -83,7 +83,9 @@ export default function ChatListItem({ data, isLastItem }: Props) {
             {data?.recentMessage?.content || "-"}
           </p>
 
-          <p className="ml-2">{`${date.hour}:${date.minute}`}</p>
+          <p className="mx-2">{`${formatNumber(date.hour)}:${formatNumber(
+            date.minute
+          )}`}</p>
         </div>
 
         {!isLastItem && (

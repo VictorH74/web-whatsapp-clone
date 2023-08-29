@@ -11,6 +11,7 @@ interface Props {
   type?: 0 | 1 | 2;
   actions?: ReactNode[];
   heading?: string;
+  subHeading?: string;
   imgSrc?: string;
   menuItems?: MenuItemProps[];
 }
@@ -26,6 +27,7 @@ const Header = ({
   imgSrc,
   menuItems,
   type = 0,
+  subHeading,
 }: Props) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -38,7 +40,7 @@ const Header = ({
 
   return (
     <div className="w-full max-h-16 bg-[#222E35] flex flex-row items-center py-3 px-4 justify-between text-white">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 ">
         {type === 2 ? (
           <div className="m-[3px] grid place-items-center bg-white w-[39px] h-[39px] rounded-full">
             <GroupsIcon sx={{ color: "black", fontSize: 20 }} />
@@ -55,7 +57,10 @@ const Header = ({
           <AccountCircleIcon sx={{ color: "white", fontSize: "45px" }} />
         )}
 
-        {heading ?? <h2 className="font-bold">{heading}</h2>}
+        <div className="flex flex-col">
+          <p className="text-sm">{heading ?? heading}</p>
+          <p className="text-xs">{subHeading ?? subHeading}</p>
+        </div>
       </div>
       <div className="flex flex-row gap-7 justify-evenly">
         {actions}

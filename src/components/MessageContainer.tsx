@@ -1,10 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import useChats from "@/hooks/useChats";
-import FirebaseApi from "@/services/firebaseApi";
 import { ChatType, Message } from "@/types/chat";
-import { getDate } from "@/utils/functions";
+import { formatNumber, getDate } from "@/utils/functions";
 import { getAuth } from "firebase/auth";
-import { DocumentReference, Timestamp, getDoc } from "firebase/firestore";
 import { memo, useEffect, useState } from "react";
 
 interface Props {
@@ -23,7 +21,7 @@ export default memo(function MessageContainer({
   const { currentUser } = getAuth();
   const { service } = useChats();
 
-  const date = getDate(message.sentAt)
+  const date = getDate(message.sentAt);
 
   const getSender = async (senderId: string) => {
     const user = await service.retrieveUser(senderId);
@@ -47,8 +45,6 @@ export default memo(function MessageContainer({
     getSender(message.sender);
   }, []);
 
-  console.log(message)
-
   if (!sender) {
     return <></>;
   }
@@ -69,7 +65,9 @@ export default memo(function MessageContainer({
       )}
       <p className="break-words">{message.content}</p>
       {sender !== "system" && (
-        <p className="text-xsself-end w-min">{`${date.hour}:${date.minute}`}</p>
+        <p className="text-xs self-end w-min">{`${formatNumber(
+          date.hour
+        )}:${formatNumber(date.minute)}`}</p>
       )}
     </div>
   );

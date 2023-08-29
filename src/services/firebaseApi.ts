@@ -53,8 +53,13 @@ export default class FirebaseApi implements Api {
   }
 
   // User----------
-  createOrUpdateUser(id: string): Promise<User> {
-    throw new Error("Method not implemented.");
+  createOrUpdateUser(
+    data: Required<Pick<User, "email"> & Partial<Omit<User, "email">>>,
+    merge?: boolean
+  ): void {
+    let userRef = fs.doc(db, "user", data.email);
+
+    fs.setDoc(userRef, data, {merge});
   }
 
   async retrieveUser(id: string): Promise<User> {

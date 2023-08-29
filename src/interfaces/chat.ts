@@ -18,6 +18,8 @@ export default interface ChatRepository {
   ): void;
 
   getUsersByEmail(email: string): Promise<User[]>;
-  createOrUpdateUser(id: string): Promise<User>;
+  createOrUpdateUser(
+    data: Required<Pick<User, "email"> & Partial<Omit<User, "email">>>
+  ): void;
   retrieveUser(id: string): Promise<User | undefined>;
 }

@@ -45,8 +45,8 @@ export default class ChatService implements ChatRepository {
   }
 
   // User----------
-  createOrUpdateUser(id: string): Promise<User> {
-    return this.api.createOrUpdateUser(id);
+  createOrUpdateUser(data: Pick<User, "email"> & Partial<Omit<User, "email">>, merge?: boolean): void {
+    return this.api.createOrUpdateUser(data, merge);
   }
 
   retrieveUser(id: string): Promise<User | undefined> {
