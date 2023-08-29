@@ -6,14 +6,13 @@ interface Props {
   children: ReactNode;
   title: string;
   backwardFn?: () => void;
+  className?: string
 }
 
 export default function NewChatContainer(props: Props) {
   return (
     <div
-      className={`bg-[#111B21] flex flex-col absolute inset-0 z-50 ${
-        props.show ? "" : "-translate-x-full"
-      } duration-200`}
+      className={`bg-[#111B21] flex flex-col absolute inset-0 z-50 ${props.show ? "" : "-translate-x-full"} duration-200 ${props.className}`}
     >
       <div className="bg-[#202C33] px-6 pb-4 pt-16">
         {props.show ? (

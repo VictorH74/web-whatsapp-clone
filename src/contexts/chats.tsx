@@ -5,6 +5,8 @@ import * as firebase from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { getAuth } from "firebase/auth";
 import { Chat } from "@/types/chat";
+import ChatService from "@/services/chat";
+import FirebaseApi from "@/services/firebaseApi";
 
 type HeaderDataType =
   | [firebase.DocumentReference, firebase.DocumentReference]
@@ -17,7 +19,10 @@ interface ChatsProvider {
   setCurrentChat: (chat: Chat | null) => void;
   headerData: HeaderDataType;
   setHeaderData: (data: HeaderDataType | null) => void;
+  service: ChatService;
 }
+
+const service = new ChatService(new FirebaseApi());
 
 export const ChatsCtx = createContext<ChatsProvider>({
   chats: [],
@@ -26,6 +31,7 @@ export const ChatsCtx = createContext<ChatsProvider>({
   setCurrentChat: () => null,
   headerData: null,
   setHeaderData: () => null,
+  service: service,
 });
 
 export default function ChatsProvider({ children }: { children: ReactNode }) {
@@ -93,6 +99,7 @@ export default function ChatsProvider({ children }: { children: ReactNode }) {
         setCurrentChat,
         headerData,
         setHeaderData,
+        service,
       }}
     >
       {children}

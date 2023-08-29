@@ -1,25 +1,28 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import useChats from "@/hooks/useChats";
 import { Chat } from "@/types/chat";
-import GroupsIcon from "@mui/icons-material/Groups";
 import { getAuth } from "firebase/auth";
 import Image from "next/image";
-import { cache, useEffect, useState } from "react";
-import { EmptyUserImgIcon } from "./IconPresets";
-import { getDoc } from "firebase/firestore";
-import { User } from "@/types/user";
+import { cache, useEffect, useRef, useState } from "react";
+import { EmptyUserImgIcon, GroupIconIcon } from "./IconPresets";
 
 interface Props {
   data: Chat;
-  last: boolean;
+  isLastItem: boolean;
 }
 
-const chatTileAfterStyle: string =
-  "after:content-[''] after:absolute after:bottom-[-1px] after:left-0 after:right-0 after:bg-[#202C33] after:h-[1px]";
-
-export default function ChatTile({ data, last }: Props) {
+export default function ChatListItem({ data, isLastItem }: Props) {
   const [chatPhoto, setChatPhoto] = useState<string | undefined>();
   const [chatTitle, setChatTitle] = useState<string | null>(data.name);
-  const { setCurrentChat } = useChats();
+  const ref = useRef<HTMLDivElement>(null);
+  const { setCurrentChat, service } = useChats();
+  const [left, setLeft] = useState(0);
+
+  useEffect(() => {
+    let left = ref.current?.offsetLeft;
+    if (!left) return;
+    setLeft(() => left as number);
+  }, [ref]);
 
   const date = new Date(data.recentMessage?.sentAt.seconds || 0 * 1000);
   const hour = date.getHours();
@@ -32,10 +35,10 @@ export default function ChatTile({ data, last }: Props) {
 
     const userRef = data.members.filter((m) => m.id !== currentUser.email)[0];
 
-    const user = (await getDoc(userRef)).data() as User;
+    const user = await service.retrieveUser(userRef.id)
 
-    setChatPhoto(user.photoURL);
-    setChatTitle(user.displayName);
+    setChatPhoto(user?.photoURL);
+    setChatTitle(user?.displayName || "Usuário não encontrado");
   });
 
   useEffect(() => {
@@ -46,36 +49,32 @@ export default function ChatTile({ data, last }: Props) {
 
   return (
     <li
-      className={`flex flex-row items-center mb-[1px] ${
+      className={`relative flex flex-row pt-2 pb-3 items-center mb-[1px] ${
         false ? "bg-[#2A3942]" : ""
       } hover:bg-[#202C33] hover:cursor-pointer`}
       onClick={() => setCurrentChat(data)}
     >
-      <div className="p-2 shrink-0">
+      <div className="px-3 shrink-0">
         {data.type === 2 ? (
-          <div className="grid place-items-center m-[5px] bg-white w-[45px] h-[45px] rounded-full">
-            <GroupsIcon sx={{ color: "black", fontSize: 20 }} />
-          </div>
+          <GroupIconIcon />
         ) : chatPhoto ? (
-          <div className="grid place-items-center overflow-hidden">
-            <Image
-              className="rounded-full mx-[7px] overflow-hidden"
-              alt="user-photo"
-              src={chatPhoto}
-              width={55}
-              height={55}
-            />
-          </div>
+          <Image
+            className="rounded-full overflow-hidden"
+            alt="user-photo"
+            src={chatPhoto}
+            width={55}
+            height={55}
+          />
         ) : (
           <EmptyUserImgIcon />
         )}
       </div>
 
-      <div
-        className={`
-      ml-2 w-full p-2 pb-3 relative ${!last && chatTileAfterStyle}`}
-      >
-        <h2 className="text-white">{chatTitle || "Chat sem nome"}</h2>
+      <div className={`w-full p-2`}>
+        <h2 ref={ref} className="text-white">
+          {chatTitle || "Chat sem nome"}
+        </h2>
+
         <div
           className={`text-gray-300 text-sm flex ${
             !data.recentMessage ? "opacity-0" : ""
@@ -87,6 +86,13 @@ export default function ChatTile({ data, last }: Props) {
 
           <p className="ml-2">{`${hour}:${minute}`}</p>
         </div>
+
+        {!isLastItem && (
+          <div
+            className="absolute bg-[#202C33] h-[1px] bottom-0"
+            style={{ right: 0, left: `${left}px` }}
+          ></div>
+        )}
       </div>
     </li>
   );

@@ -4,6 +4,7 @@ import ChatBox from "@/components/ChatBox";
 import Loading from "@/components/Loading";
 import Providers from "@/components/Providers";
 import SideBar from "@/components/SideBar";
+import SidebarProvider from "@/contexts/sidebar";
 import useChats from "@/hooks/useChats";
 
 const Main = () => {
@@ -17,7 +18,10 @@ const Main = () => {
         </main>
       ) : (
         <main className="flex h-screen overflow-y-hidden custom-scrollbar">
-          <SideBar />
+          <SidebarProvider>
+            <SideBar />
+          </SidebarProvider>
+
           <ChatBox />
         </main>
       )}

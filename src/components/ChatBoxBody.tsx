@@ -1,8 +1,7 @@
 import { ChatType, Message } from "@/types/chat";
 import MessageContainer from "./MessageContainer";
-import { ForwardedRef, RefObject, forwardRef, useRef } from "react";
+import { ForwardedRef, forwardRef } from "react";
 import { getAuth } from "firebase/auth";
-import useChats from "@/hooks/useChats";
 
 const colors: string[] = [
   "green-400",

@@ -1,4 +1,4 @@
-import {  FC, ReactNode, useEffect, useRef, useState } from "react";
+import { FC, ReactNode, useEffect, useRef, useState } from "react";
 import { DocumentReference, Timestamp } from "firebase/firestore";
 import UserListItem from "./UserListItem";
 import { getAuth } from "firebase/auth";
@@ -12,16 +12,14 @@ import { Chat } from "@/types/chat";
 import useFetchUsers from "@/hooks/useFetchUsers";
 import { createUserRef } from "@/utils/functions";
 import SearchUserInput from "./SearchUserInput";
+import useSidebarState from "@/hooks/useSidebarState";
 
-interface Props {
-  show: boolean;
-  setShow: (value: boolean) => void;
-}
 
-export default function NewPrivateChat({ show, setShow }: Props) {
+export default function NewPrivateChat() {
   const [emailValue, setEmailValue] = useState("");
   const { currentUser } = getAuth();
   const { setCurrentChat } = useChats();
+  const { newPrivateChatArea, setNewPrivateChatArea, setNewGroupChatArea } = useSidebarState();
   const { isLoading, users, resetFn } = useFetchUsers(
     emailValue,
     currentUser?.email || ""
@@ -50,13 +48,17 @@ export default function NewPrivateChat({ show, setShow }: Props) {
   };
 
   const close = () => {
-    setShow(false);
+    setNewPrivateChatArea(false);
     setEmailValue("");
     resetFn();
   };
 
   return (
-    <NewChatContainer show={show} title="Nova Conversa" backwardFn={close}>
+    <NewChatContainer
+      show={newPrivateChatArea}
+      title="Nova Conversa"
+      backwardFn={close}
+    >
       <div>
         <div className="p-3 text-white">
           <SearchUserInput
@@ -71,6 +73,7 @@ export default function NewPrivateChat({ show, setShow }: Props) {
           <AditionalItem
             icon={<GroupIconIcon bgColor="#00A884" />}
             label="Novo grupo"
+            onClick={() => setNewGroupChatArea(true)}
           />
           <AditionalItem
             icon={<ComunityIcon bgColor="#00A884" />}
@@ -101,7 +104,8 @@ const AditionalItem: FC<{
   icon: ReactNode;
   label: string;
   disabled?: boolean;
-}> = ({ icon, label, disabled = false }) => {
+  onClick?: () => void;
+}> = ({ icon, label, disabled = false, onClick }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [left, setLeft] = useState(0);
 
@@ -123,7 +127,7 @@ const AditionalItem: FC<{
         hover:bg-[#202C33] 
         hover:cursor-pointer
       `}
-      onClick={() => {}}
+      onClick={onClick}
     >
       {icon}
 

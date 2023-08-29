@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import useChats from "@/hooks/useChats";
 import { ChatType, Message } from "@/types/chat";
-import { User } from "@/types/user";
 import { getAuth } from "firebase/auth";
 import { DocumentReference, getDoc } from "firebase/firestore";
 import { memo, useEffect, useState } from "react";
@@ -19,15 +19,15 @@ export default memo(function MessageContainer({
   const [sender, setSender] = useState<string | undefined>(undefined);
   const [owner, setOwner] = useState<boolean>(false);
   const { currentUser } = getAuth();
+  const {service} = useChats()
 
   const date = new Date(message.sentAt.seconds * 1000);
   const hour = date.getHours();
   const minute = date.getMinutes();
 
-  const getSender = async (documentRef: DocumentReference) => {
-    const data = await getDoc(documentRef);
-    const user = data.data() as User;
-    setSender(user.displayName);
+  const getSender = async (ref: DocumentReference) => {
+    const user = await service.retrieveUser(ref.id)
+    setSender(user?.displayName);
   };
 
   useEffect(() => {

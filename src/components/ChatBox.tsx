@@ -10,13 +10,12 @@ import Loading from "./Loading";
 import { ChatType, Message } from "@/types/chat";
 import useChats from "@/hooks/useChats";
 import ChatBoxBody from "./ChatBoxBody";
-import { User } from "@/types/user";
 
 export default memo(function ChatBox() {
   const { currentUser } = getAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { currentChat, setCurrentChat } = useChats();
+  const { currentChat, setCurrentChat, service } = useChats();
   const ref = useRef<HTMLDivElement>(null);
   const [initialMsgData, setInitialMsgData] = useState(true);
   const [currentChatId, setCurrentChatId] = useState<string | undefined>();
@@ -32,9 +31,17 @@ export default memo(function ChatBox() {
 
         if (!currentUser?.email) return;
 
+        // TODO: change mebers field from user ref to user id/email
+        // userId = members.filter(id => id !== currentUser.email)[0];
         const userRef = members.filter((m) => m.id !== currentUser.email)[0];
 
-        const user = (await fb.getDoc(userRef)).data() as User;
+        const user = await service.retrieveUser(userRef.id);
+
+        if (!user) {
+          alert("Erro ao buscar dados do usuário: Usuário não existe")
+          console.error()
+          return
+        }
 
         setHeaderImg(user.photoURL);
         setHeaderTitle(user.displayName);
@@ -73,11 +80,14 @@ export default memo(function ChatBox() {
       setMessages(() => messageDatas);
       if (currentChat.type === 1) {
         fetchUserImg(currentChat.members, currentChat.type);
+        return;
       }
+      setIsLoading(false);
     });
 
     return () => {
       unsubscribe();
+      console.log("null");
     };
   }, [currentChat]);
 
@@ -98,15 +108,7 @@ export default memo(function ChatBox() {
   const deleteChat = useCallback(async () => {
     if (currentChat === null || !currentChat.id) return;
 
-    const createRef = (path: string) =>
-      fb.doc(db, path, currentChat.id as string);
-    setCurrentChat(null);
-
-    const chatRef = createRef("chat");
-    // const messagesRef = createRef("message");
-
-    await fb.deleteDoc(chatRef);
-    // await fb.deleteDoc(messagesRef);
+    await service.deleteChat(currentChat.id);
 
     // TODO: delete message doc with the deleted chat id
     // possible only with firebase cloud functions :(
@@ -146,10 +148,17 @@ export default memo(function ChatBox() {
                   onClick() {
                     deleteChat();
                   },
-                  title: "Deletar Chat",
+                  title: "Deletar Grupo",
                 },
               ]
-            : []
+            : [
+                {
+                  onClick() {
+                    setCurrentChat(null);
+                  },
+                  title: "Fechar Conversa",
+                },
+              ]
         }
       />
       <ChatBoxBody messages={messages} type={currentChat.type} ref={ref} />

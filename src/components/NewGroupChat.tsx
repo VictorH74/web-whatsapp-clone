@@ -1,4 +1,5 @@
-import { FormEvent, useState } from "react";
+import { FC, FormEvent, ReactNode, useState } from "react";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {
   DocumentReference,
   Timestamp,
@@ -18,17 +19,21 @@ import useFetchUsers from "@/hooks/useFetchUsers";
 import { createUserRef } from "@/utils/functions";
 import SearchUserInput from "./SearchUserInput";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import { GroupIconIcon } from "./IconPresets";
+import CheckIcon from "@mui/icons-material/Check";
+import useChats from "@/hooks/useChats";
+import useSidebarState from "@/hooks/useSidebarState";
 
-interface Props {
-  show: boolean;
-  setShow: (value: boolean) => void;
-}
-
-export default function NewGroupChat({ show, setShow }: Props) {
+export default function NewGroupChat() {
   const [emailValue, setEmailValue] = useState("");
+  const [groupName, setGroupName] = useState("");
   const [next, setNext] = useState(false);
+  const [submiting, setSubmiting] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
   const { currentUser } = getAuth();
+  const { service } = useChats();
+  const { newGroupChatArea, setNewGroupChatArea, setNewPrivateChatArea } =
+    useSidebarState();
   const { isLoading, users, resetFn } = useFetchUsers(
     emailValue,
     currentUser?.email || ""
@@ -45,7 +50,7 @@ export default function NewGroupChat({ show, setShow }: Props) {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    // setIsLoading(true);
+    setSubmiting(true);
 
     if (!currentUser?.email) {
       alert("Email não encontrado");
@@ -63,15 +68,16 @@ export default function NewGroupChat({ show, setShow }: Props) {
 
     const owner = currentUser?.email;
 
-    const newChat: Omit<Chat, "createdAt" | "id"> = {
+    const newChat: Omit<Chat, "id"> = {
       members: userRefs,
       admList: [createUserRef(owner)],
       type: 2,
       createdBy: owner,
-      name: "Group Name",
+      name: groupName,
+      createdAt: Timestamp.fromDate(new Date()),
     };
 
-    const createdChatRef = await addDoc(collection(db, "chat"), newChat);
+    const createdChatRef = await service.createChat(newChat);
 
     const newMessage: Message = {
       content: `Nova conversa criada por ${currentUser?.displayName}`,
@@ -79,6 +85,13 @@ export default function NewGroupChat({ show, setShow }: Props) {
       readBy: [],
       sentAt: Timestamp.fromDate(new Date()),
     };
+
+    if (!createdChatRef.id) {
+      console.error();
+      return;
+    }
+
+    // MESSAGE
     await setDoc(doc(db, "message", createdChatRef.id), {});
     await addDoc(
       collection(db, `/message/${createdChatRef.id}/messages`),
@@ -89,8 +102,11 @@ export default function NewGroupChat({ show, setShow }: Props) {
   };
 
   const close = () => {
-    setShow(false);
+    setSubmiting(false);
+    setNewGroupChatArea(false);
+    setNewPrivateChatArea(false);
     setEmailValue("");
+    setGroupName("");
     setSelectedUsers([]);
     resetFn();
   };
@@ -98,17 +114,10 @@ export default function NewGroupChat({ show, setShow }: Props) {
   return (
     <>
       <NewChatContainer
-        show={next}
-        title="Nome do Grupo"
-        backwardFn={() => setNext(false)}
-      >
-        <div>sdfsdfdfsdf</div>
-      </NewChatContainer>
-
-      <NewChatContainer
-        show={show}
+        show={newGroupChatArea}
         title="Adicionar Participantes ao Grupo"
         backwardFn={close}
+        className="z-[60]"
       >
         <div className="text-white grow">
           <div className="grid p-2">
@@ -120,30 +129,86 @@ export default function NewGroupChat({ show, setShow }: Props) {
             />
           </div>
           <ul>
-            {users.map((u, i) => (
-              <UserListItem
-                key={u.email}
-                isLastItem={i === users.length - 1}
-                user={u}
-                selected={selectedUsers.map((u) => u.email).includes(u.email)}
-                onClick={handleItemClick}
-              />
-            ))}
+            {isLoading ? (
+              <div className="p-10 w-full h-full grid place-items-center">
+                <Loading />
+              </div>
+            ) : (
+              users.map((u, i) => (
+                <UserListItem
+                  key={u.email}
+                  isLastItem={i === users.length - 1}
+                  user={u}
+                  selected={selectedUsers.map((u) => u.email).includes(u.email)}
+                  onClick={handleItemClick}
+                />
+              ))
+            )}
           </ul>
         </div>
         {selectedUsers.length > 0 && (
-          <div className="grid place-items-center py-10">
-            <button
-              className="bg-[#00A884] text-white aspect-square w-11 rounded-full"
-              onClick={() => {
-                setNext(true);
-              }}
-            >
-              <ArrowForwardIcon />
-            </button>
-          </div>
+          <Button onClick={() => setNext(true)}>
+            <ArrowForwardIcon sx={{ fontSize: 25 }} />
+          </Button>
         )}
       </NewChatContainer>
+      <div
+        className={`text-white bg-[#111B21] flex flex-col absolute z-[60] inset-0 ${
+          next ? "" : "-translate-x-full"
+        } duration-200`}
+      >
+        <div className="bg-[#202C33] px-6 pb-4 pt-16">
+          {next && (
+            <div className="text-white flex gap-7 fade-out">
+              <button onClick={() => setNext(false)}>
+                <ArrowBackIcon sx={{ fontSize: 25 }} />
+              </button>
+
+              <h2>Novo grupo</h2>
+            </div>
+          )}
+        </div>
+        <form onSubmit={handleSubmit}>
+          <div className="flex flex-col px-6 py-9 items-center gap-14">
+            <GroupIconIcon size={200} iconSize={150} />
+            <input
+              type="text"
+              placeholder="Nome do grupo"
+              className="py-1 w-full bg-transparent outline-none border-b-2 border-b-gray-500 focus:border-b-[#00A884]"
+              onChange={(e) => setGroupName(e.currentTarget.value)}
+            />
+
+            <Button
+              className={`duration-100 ${groupName ? "scale-1" : "-scale-0"}`}
+              type="submit"
+              disabled={submiting || !groupName}
+            >
+              <CheckIcon sx={{ fontSize: 25 }} />
+            </Button>
+          </div>
+        </form>
+      </div>
     </>
   );
 }
+
+const Button: FC<{
+  children: ReactNode;
+  onClick?: () => void;
+  type?: "button" | "submit" | "reset" | undefined;
+  disabled?: boolean;
+  className?: string;
+}> = (props) => (
+  <div className={`grid place-items-center py-10 ${props.className}`}>
+    <button
+      className="bg-[#00A884] text-white aspect-square w-11 rounded-full"
+      onClick={props.onClick}
+      type={props.type || "button"}
+      disabled={props.disabled}
+    >
+      {props.children}
+    </button>
+  </div>
+);
+
+//

@@ -4,17 +4,14 @@ import MicIcon from "@mui/icons-material/Mic";
 import SendIcon from "@mui/icons-material/Send";
 import { ChangeEvent, FormEvent, useState } from "react";
 import {
-  DocumentReference,
   Timestamp,
   addDoc,
   collection,
   doc,
-  getDoc,
   setDoc,
 } from "firebase/firestore";
 import { db } from "@/services/firebase";
 import { Chat, Message } from "@/types/chat";
-import { getAuth } from "firebase/auth";
 import useChats from "@/hooks/useChats";
 
 interface Props {
@@ -27,7 +24,7 @@ export default function ChatBoxFooter({
   scrollToBottom,
 }: Props) {
   const [content, setContent] = useState("");
-  const { currentChat, setCurrentChat } = useChats();
+  const { currentChat, setCurrentChat, service } = useChats();
 
   const handleChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     setContent(event.target.value);
@@ -54,46 +51,51 @@ export default function ChatBoxFooter({
 
         const newChatId = currentChat.members.map((m) => m.id).join("+");
 
-        const chatRef = doc(db, "chat", newChatId);
+        const retrievedChat = await service.retrieveChat(newChatId);
 
-        const retrievedChat = await getDoc(chatRef);
+        if (retrievedChat) {
+          setCurrentChat(retrievedChat);
 
-        if (retrievedChat.exists()) {
-          setCurrentChat({
-            id: retrievedChat.id,
-            ...retrievedChat.data(),
-          } as Chat);
+          if (!retrievedChat.id) return;
 
+          // MESSAGE
           await setDoc(doc(db, "message", retrievedChat.id), {});
           await addDoc(
             collection(db, `/message/${retrievedChat.id}/messages`),
             newMessage
           );
-          await setDoc(
-            doc(db, "chat", retrievedChat.id),
+
+          await service.updateChat(
+            retrievedChat.id,
             {
               recentMessage: newMessage,
             },
-            { merge: true }
+            true
           );
 
           return;
         }
 
-        await setDoc(chatRef, currentChat);
+        await service.updateChat(newChatId, currentChat);
+        // await setDoc(chatRef, currentChat);
+
         const newChat: Chat = { id: newChatId, ...currentChat } as Chat;
         setCurrentChat(newChat);
         chatId = newChatId;
+
+        // MESSAGE
         await setDoc(doc(db, "message", chatId), {});
       }
 
+      // MESSAGE
       await addDoc(collection(db, `/message/${chatId}/messages`), newMessage);
-      await setDoc(
-        doc(db, "chat", chatId),
+
+      await service.updateChat(
+        chatId,
         {
           recentMessage: newMessage,
         },
-        { merge: true }
+        true
       );
 
       scrollToBottom();

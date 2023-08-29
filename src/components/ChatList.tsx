@@ -1,4 +1,4 @@
-import ChatTile from "./ChatTile";
+import ChatListItem from "./ChatListItem";
 import useChats from "@/hooks/useChats";
 
 export default function ChatList() {
@@ -7,7 +7,7 @@ export default function ChatList() {
   return (
     <ul className="overflow-auto h-full">
       {chats.map((chat, i) => (
-        <ChatTile key={chat.id} data={chat} last={i === chats.length - 1} />
+        <ChatListItem key={chat.id} data={chat} isLastItem={i === chats.length - 1} />
       ))}
     </ul>
   );

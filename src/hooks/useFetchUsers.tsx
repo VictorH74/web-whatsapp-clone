@@ -1,8 +1,7 @@
-import { db } from "@/services/firebase";
 import { User } from "@/types/user";
-import * as fs from "firebase/firestore";
-import { FC, useState } from "react";
+import { useState } from "react";
 import { useDebounce } from "react-use";
+import useChats from "./useChats";
 
 export default function useFetchUsers(
   emailValue: string,
@@ -10,6 +9,7 @@ export default function useFetchUsers(
 ): { isLoading: boolean; users: User[]; resetFn: () => void } {
   const [isLoading, setIsLoading] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
+  const { service } = useChats();
 
   const resetFn = () => {
     setIsLoading(false);
@@ -27,20 +27,10 @@ export default function useFetchUsers(
 
   const fetchUsers = async () => {
     setIsLoading(true);
-    const q = fs.query(
-      fs.collection(db, "user"),
-      fs.where("email", ">=", emailValue),
-      fs.where("email", "<=", emailValue + "\uf8ff"),
-      fs.where("email", "!=", currentUserEmail)
+    const retrievedUsers = await service.getUsersByEmail(
+      emailValue,
+      currentUserEmail
     );
-
-    const querySnapshot = await fs.getDocs(q);
-
-    const retrievedUsers: User[] = [];
-    querySnapshot.forEach((doc) => {
-      const user = doc.data();
-      retrievedUsers.push(user as User);
-    });
     setUsers(retrievedUsers);
     setIsLoading(false);
   };
