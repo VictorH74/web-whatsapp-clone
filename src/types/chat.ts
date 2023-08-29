@@ -1,21 +1,19 @@
-import { DocumentReference, Timestamp } from "firebase/firestore";
-
 export type Chat = {
   id?: string;
-  createdAt: Timestamp;
+  createdAt: Date;
   createdBy: string;
-  members: DocumentReference[];
+  members: string[];
   name: string | null;
   recentMessage?: Message;
   type: ChatType;
-  admList: DocumentReference[];
+  admList: string[];
 };
 
 export type ChatType = 1 | 2;
 
 export type Message = {
-  sender: DocumentReference | string;
+  sender: string | string;
   content: string;
-  sentAt: Timestamp;
-  readBy: DocumentReference[];
+  sentAt: Date;
+  readBy: string[];
 };

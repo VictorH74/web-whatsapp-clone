@@ -1,5 +1,4 @@
 import { FC, ReactNode, useEffect, useRef, useState } from "react";
-import { DocumentReference, Timestamp } from "firebase/firestore";
 import UserListItem from "./UserListItem";
 import { getAuth } from "firebase/auth";
 import Loading from "./Loading";
@@ -10,16 +9,14 @@ import { ComunityIcon, GroupIconIcon } from "./IconPresets";
 import useChats from "@/hooks/useChats";
 import { Chat } from "@/types/chat";
 import useFetchUsers from "@/hooks/useFetchUsers";
-import { createUserRef } from "@/utils/functions";
 import SearchUserInput from "./SearchUserInput";
-import useSidebarState from "@/hooks/useSidebarState";
-
+import useAsideState from "@/hooks/useAsideState";
 
 export default function NewPrivateChat() {
   const [emailValue, setEmailValue] = useState("");
   const { currentUser } = getAuth();
   const { setCurrentChat } = useChats();
-  const { newPrivateChatArea, setNewPrivateChatArea, setNewGroupChatArea } = useSidebarState();
+  const { setAsideContentNumber } = useAsideState();
   const { isLoading, users, resetFn } = useFetchUsers(
     emailValue,
     currentUser?.email || ""
@@ -31,33 +28,33 @@ export default function NewPrivateChat() {
       return;
     }
 
-    let userRefs: DocumentReference[] = [
-      createUserRef(currentUser.email),
-      createUserRef(userObj.email),
+    let userEmails: string[] = [
+      currentUser.email,
+      userObj.email,
     ];
     const chat: Chat = {
-      createdAt: Timestamp.fromDate(new Date()),
+      createdAt: new Date(),
       createdBy: currentUser.email,
-      members: userRefs,
+      members: userEmails,
       name: null,
       type: 1,
-      admList: userRefs,
+      admList: userEmails,
     };
     setCurrentChat(chat);
     close();
   };
 
   const close = () => {
-    setNewPrivateChatArea(false);
+    setAsideContentNumber(0);
     setEmailValue("");
     resetFn();
   };
 
   return (
     <NewChatContainer
-      show={newPrivateChatArea}
       title="Nova Conversa"
       backwardFn={close}
+      contentNumber={1}
     >
       <div>
         <div className="p-3 text-white">
@@ -73,7 +70,7 @@ export default function NewPrivateChat() {
           <AditionalItem
             icon={<GroupIconIcon bgColor="#00A884" />}
             label="Novo grupo"
-            onClick={() => setNewGroupChatArea(true)}
+            onClick={() => setAsideContentNumber(2)}
           />
           <AditionalItem
             icon={<ComunityIcon bgColor="#00A884" />}

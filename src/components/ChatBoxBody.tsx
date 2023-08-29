@@ -29,10 +29,10 @@ export default forwardRef(function ChatBoxBody(
 
   return (
     <div
-      className="flex flex-col grow justify-end text-white overflow-y-auto custom-scrollbar"
+      className="flex flex-col grow justify-end text-white overflow-y-auto overflow-x-hidden custom-scrollbar"
       
     >
-      <div className="flex flex-col gap-3 p-4 overflow-y-auto" ref={ref}>
+      <div className="flex flex-col gap-3 p-4 overflow-y-auto  overflow-x-hidden" ref={ref}>
         {messages.map((m) => (
           <MessageContainer
             key={m.sentAt.toString()}

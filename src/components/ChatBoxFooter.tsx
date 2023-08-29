@@ -3,16 +3,9 @@ import AddIcon from "@mui/icons-material/Add";
 import MicIcon from "@mui/icons-material/Mic";
 import SendIcon from "@mui/icons-material/Send";
 import { ChangeEvent, FormEvent, useState } from "react";
-import {
-  Timestamp,
-  addDoc,
-  collection,
-  doc,
-  setDoc,
-} from "firebase/firestore";
-import { db } from "@/services/firebase";
 import { Chat, Message } from "@/types/chat";
 import useChats from "@/hooks/useChats";
+import { generateChatId } from "@/utils/functions";
 
 interface Props {
   currentUserEmail: string;
@@ -41,15 +34,17 @@ export default function ChatBoxFooter({
     try {
       const newMessage: Message = {
         content,
-        sender: doc(db, "user", currentUserEmail),
-        readBy: [doc(db, "user", currentUserEmail)],
-        sentAt: Timestamp.fromDate(new Date()),
+        sender: currentUserEmail,
+        readBy: [currentUserEmail],
+        sentAt: new Date(),
       };
+
+      let createMsgCollection = false;
 
       if (!chatId) {
         if (!currentChat) return;
 
-        const newChatId = currentChat.members.map((m) => m.id).join("+");
+        const newChatId = generateChatId(currentChat.members)
 
         const retrievedChat = await service.retrieveChat(newChatId);
 
@@ -58,12 +53,7 @@ export default function ChatBoxFooter({
 
           if (!retrievedChat.id) return;
 
-          // MESSAGE
-          await setDoc(doc(db, "message", retrievedChat.id), {});
-          await addDoc(
-            collection(db, `/message/${retrievedChat.id}/messages`),
-            newMessage
-          );
+          await service.createMessage(retrievedChat.id, newMessage, true);
 
           await service.updateChat(
             retrievedChat.id,
@@ -77,18 +67,15 @@ export default function ChatBoxFooter({
         }
 
         await service.updateChat(newChatId, currentChat);
-        // await setDoc(chatRef, currentChat);
 
         const newChat: Chat = { id: newChatId, ...currentChat } as Chat;
         setCurrentChat(newChat);
         chatId = newChatId;
 
-        // MESSAGE
-        await setDoc(doc(db, "message", chatId), {});
+        createMsgCollection = true;
       }
 
-      // MESSAGE
-      await addDoc(collection(db, `/message/${chatId}/messages`), newMessage);
+      await service.createMessage(chatId, newMessage, createMsgCollection);
 
       await service.updateChat(
         chatId,

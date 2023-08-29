@@ -1,4 +1,4 @@
-import { Chat } from "@/types/chat";
+import { Chat, Message } from "@/types/chat";
 import { User } from "@/types/user";
 
 export default interface Api {
@@ -11,6 +11,12 @@ export default interface Api {
     merge: boolean
   ): void;
   deleteChat(id: string): void;
+
+  createMessage(
+    chatId: string,
+    data: Message,
+    createFirebaseCollection?: boolean
+  ): void;
 
   getUsersByEmail(email: string, ownerEmail?: string): Promise<User[]>;
   createOrUpdateUser(id: string): Promise<User>;

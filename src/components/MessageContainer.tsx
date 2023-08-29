@@ -1,8 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import useChats from "@/hooks/useChats";
+import FirebaseApi from "@/services/firebaseApi";
 import { ChatType, Message } from "@/types/chat";
+import { getDate } from "@/utils/functions";
 import { getAuth } from "firebase/auth";
-import { DocumentReference, getDoc } from "firebase/firestore";
+import { DocumentReference, Timestamp, getDoc } from "firebase/firestore";
 import { memo, useEffect, useState } from "react";
 
 interface Props {
@@ -19,36 +21,33 @@ export default memo(function MessageContainer({
   const [sender, setSender] = useState<string | undefined>(undefined);
   const [owner, setOwner] = useState<boolean>(false);
   const { currentUser } = getAuth();
-  const {service} = useChats()
+  const { service } = useChats();
 
-  const date = new Date(message.sentAt.seconds * 1000);
-  const hour = date.getHours();
-  const minute = date.getMinutes();
+  const date = getDate(message.sentAt)
 
-  const getSender = async (ref: DocumentReference) => {
-    const user = await service.retrieveUser(ref.id)
+  const getSender = async (senderId: string) => {
+    const user = await service.retrieveUser(senderId);
     setSender(user?.displayName);
   };
 
   useEffect(() => {
-    if (message.sender instanceof DocumentReference) {
-      if (currentUser?.email === message.sender.id) {
-        setSender(currentUser?.displayName || "-");
-        setOwner(true);
-        return;
-      }
+    if (message.sender === "system") return;
 
-      if (type !== 2) {
-        setSender("x");
-        return;
-      }
-
-      getSender(message.sender);
+    if (currentUser?.email === message.sender) {
+      setSender(currentUser?.displayName || "-");
+      setOwner(true);
       return;
     }
 
-    setSender(message.sender);
+    if (type !== 2) {
+      setSender("X");
+      return;
+    }
+
+    getSender(message.sender);
   }, []);
+
+  console.log(message)
 
   if (!sender) {
     return <></>;
@@ -56,7 +55,7 @@ export default memo(function MessageContainer({
 
   return (
     <div
-      className={`bg-[#005C4B] text-sm font-normal p-2 rounded-md w-auto flex flex-col ${
+      className={`bg-[#005C4B] text-sm font-normal p-2 overflow-hidden rounded-md w-auto max-w-lg h-auto flex flex-col ${
         sender === "system"
           ? "self-center bg-gray-800"
           : owner
@@ -68,9 +67,9 @@ export default memo(function MessageContainer({
       {type === 2 && !owner && sender !== "system" && (
         <p className={`text-${senderNameColor}`}>{sender}</p>
       )}
-      <p>{message.content}</p>
+      <p className="break-words">{message.content}</p>
       {sender !== "system" && (
-        <p className="text-xsself-end w-min">{`${hour}:${minute}`}</p>
+        <p className="text-xsself-end w-min">{`${date.hour}:${date.minute}`}</p>
       )}
     </div>
   );

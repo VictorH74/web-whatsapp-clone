@@ -72,7 +72,7 @@ export default function ChatsProvider({ children }: { children: ReactNode }) {
 
     const q = firebase.query(
       firebase.collection(db, "chat"),
-      firebase.where("members", "array-contains", userRef)
+      firebase.where("members", "array-contains", email)
     );
 
     const unsubscribe = firebase.onSnapshot(q, (querySnapshot) => {

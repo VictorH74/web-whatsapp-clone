@@ -1,5 +1,5 @@
 import Api from "@/interfaces/api";
-import { Chat } from "@/types/chat";
+import { Chat, Message } from "@/types/chat";
 import { User } from "@/types/user";
 import * as fs from "firebase/firestore";
 import { db } from "./firebase";
@@ -8,36 +8,7 @@ import { createUserRef } from "@/utils/functions";
 const chatCollectionPath = "chat";
 
 export default class FirebaseApi implements Api {
-  createOrUpdateUser(id: string): Promise<User> {
-    throw new Error("Method not implemented.");
-  }
-
-  async retrieveUser(id: string): Promise<User> {
-    const userRef = createUserRef(id);
-
-    const user = (await fs.getDoc(userRef)).data() as User;
-    return user;
-  }
-
-  async getUsersByEmail(email: string, ownerEmail?: string): Promise<User[]> {
-    const q = fs.query(
-      fs.collection(db, "user"),
-      fs.where("email", ">=", email),
-      fs.where("email", "<=", email + "\uf8ff"),
-      fs.where("email", "!=", ownerEmail)
-    );
-
-    const querySnapshot = await fs.getDocs(q);
-
-    const users: User[] = [];
-    querySnapshot.forEach((doc) => {
-      const user = doc.data();
-      users.push(user as User);
-    });
-
-    return users;
-  }
-
+  // Chat----------
   getChats(): Promise<Chat[]> {
     throw new Error("Method not implemented.");
   }
@@ -67,5 +38,48 @@ export default class FirebaseApi implements Api {
   async deleteChat(id: string): Promise<void> {
     const chatRef = fs.doc(db, chatCollectionPath, id as string);
     await fs.deleteDoc(chatRef);
+  }
+
+  // Message-------
+  async createMessage(
+    chatId: string,
+    data: Message,
+    createFirebaseCollection?: boolean
+  ): Promise<void> {
+    if (createFirebaseCollection) {
+      await fs.setDoc(fs.doc(db, "message", chatId), {});
+    }
+    await fs.addDoc(fs.collection(db, `/message/${chatId}/messages`), data);
+  }
+
+  // User----------
+  createOrUpdateUser(id: string): Promise<User> {
+    throw new Error("Method not implemented.");
+  }
+
+  async retrieveUser(id: string): Promise<User> {
+    const userRef = createUserRef(id);
+
+    const user = (await fs.getDoc(userRef)).data() as User;
+    return user;
+  }
+
+  async getUsersByEmail(email: string, ownerEmail?: string): Promise<User[]> {
+    const q = fs.query(
+      fs.collection(db, "user"),
+      fs.where("email", ">=", email),
+      fs.where("email", "<=", email + "\uf8ff"),
+      fs.where("email", "!=", ownerEmail)
+    );
+
+    const querySnapshot = await fs.getDocs(q);
+
+    const users: User[] = [];
+    querySnapshot.forEach((doc) => {
+      const user = doc.data();
+      users.push(user as User);
+    });
+
+    return users;
   }
 }

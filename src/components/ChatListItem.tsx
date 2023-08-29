@@ -5,6 +5,7 @@ import { getAuth } from "firebase/auth";
 import Image from "next/image";
 import { cache, useEffect, useRef, useState } from "react";
 import { EmptyUserImgIcon, GroupIconIcon } from "./IconPresets";
+import { getDate } from "@/utils/functions";
 
 interface Props {
   data: Chat;
@@ -24,18 +25,16 @@ export default function ChatListItem({ data, isLastItem }: Props) {
     setLeft(() => left as number);
   }, [ref]);
 
-  const date = new Date(data.recentMessage?.sentAt.seconds || 0 * 1000);
-  const hour = date.getHours();
-  const minute = date.getMinutes();
+  const date = getDate(data.recentMessage?.sentAt)
 
   const fetchUser = cache(async () => {
     const { currentUser } = getAuth();
 
     if (!currentUser?.email) return;
 
-    const userRef = data.members.filter((m) => m.id !== currentUser.email)[0];
+    const userId = data.members.filter((id) => id !== currentUser.email)[0];
 
-    const user = await service.retrieveUser(userRef.id)
+    const user = await service.retrieveUser(userId)
 
     setChatPhoto(user?.photoURL);
     setChatTitle(user?.displayName || "Usuário não encontrado");
@@ -84,7 +83,7 @@ export default function ChatListItem({ data, isLastItem }: Props) {
             {data?.recentMessage?.content || "-"}
           </p>
 
-          <p className="ml-2">{`${hour}:${minute}`}</p>
+          <p className="ml-2">{`${date.hour}:${date.minute}`}</p>
         </div>
 
         {!isLastItem && (

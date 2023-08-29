@@ -1,14 +1,5 @@
 import { FC, FormEvent, ReactNode, useState } from "react";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import {
-  DocumentReference,
-  Timestamp,
-  addDoc,
-  collection,
-  doc,
-  setDoc,
-} from "firebase/firestore";
-import { db } from "@/services/firebase";
 import UserListItem from "./UserListItem";
 import { getAuth } from "firebase/auth";
 import Loading from "./Loading";
@@ -16,13 +7,12 @@ import { User } from "@/types/user";
 import { Chat, Message } from "@/types/chat";
 import NewChatContainer from "./NewChatContainer";
 import useFetchUsers from "@/hooks/useFetchUsers";
-import { createUserRef } from "@/utils/functions";
 import SearchUserInput from "./SearchUserInput";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { GroupIconIcon } from "./IconPresets";
 import CheckIcon from "@mui/icons-material/Check";
 import useChats from "@/hooks/useChats";
-import useSidebarState from "@/hooks/useSidebarState";
+import useAsideState from "@/hooks/useAsideState";
 
 export default function NewGroupChat() {
   const [emailValue, setEmailValue] = useState("");
@@ -32,8 +22,7 @@ export default function NewGroupChat() {
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
   const { currentUser } = getAuth();
   const { service } = useChats();
-  const { newGroupChatArea, setNewGroupChatArea, setNewPrivateChatArea } =
-    useSidebarState();
+  const { setAsideContentNumber } = useAsideState();
   const { isLoading, users, resetFn } = useFetchUsers(
     emailValue,
     currentUser?.email || ""
@@ -61,20 +50,20 @@ export default function NewGroupChat() {
       return;
     }
 
-    let userRefs: DocumentReference[] = [
-      createUserRef(currentUser.email),
-      ...selectedUsers.map((u) => createUserRef(u.email)),
+    let userRefs: string[] = [
+      currentUser.email,
+      ...selectedUsers.map((u) => u.email),
     ];
 
     const owner = currentUser?.email;
 
     const newChat: Omit<Chat, "id"> = {
       members: userRefs,
-      admList: [createUserRef(owner)],
+      admList: [owner],
       type: 2,
       createdBy: owner,
       name: groupName,
-      createdAt: Timestamp.fromDate(new Date()),
+      createdAt: new Date(),
     };
 
     const createdChatRef = await service.createChat(newChat);
@@ -83,7 +72,7 @@ export default function NewGroupChat() {
       content: `Nova conversa criada por ${currentUser?.displayName}`,
       sender: "system",
       readBy: [],
-      sentAt: Timestamp.fromDate(new Date()),
+      sentAt: new Date(),
     };
 
     if (!createdChatRef.id) {
@@ -91,20 +80,14 @@ export default function NewGroupChat() {
       return;
     }
 
-    // MESSAGE
-    await setDoc(doc(db, "message", createdChatRef.id), {});
-    await addDoc(
-      collection(db, `/message/${createdChatRef.id}/messages`),
-      newMessage
-    );
+    await service.createMessage(createdChatRef.id, newMessage, true);
 
     close();
   };
 
   const close = () => {
     setSubmiting(false);
-    setNewGroupChatArea(false);
-    setNewPrivateChatArea(false);
+    setAsideContentNumber(0);
     setEmailValue("");
     setGroupName("");
     setSelectedUsers([]);
@@ -114,10 +97,10 @@ export default function NewGroupChat() {
   return (
     <>
       <NewChatContainer
-        show={newGroupChatArea}
         title="Adicionar Participantes ao Grupo"
         backwardFn={close}
         className="z-[60]"
+        contentNumber={2}
       >
         <div className="text-white grow">
           <div className="grid p-2">

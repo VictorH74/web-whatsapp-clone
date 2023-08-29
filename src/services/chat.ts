@@ -1,6 +1,6 @@
 import Api from "@/interfaces/api";
 import ChatRepository from "@/interfaces/chat";
-import { Chat } from "@/types/chat";
+import { Chat, Message } from "@/types/chat";
 import { User } from "@/types/user";
 
 export default class ChatService implements ChatRepository {
@@ -10,6 +10,7 @@ export default class ChatService implements ChatRepository {
     this.api = api;
   }
 
+  // Chat----------
   getChats(): Promise<Chat[]> {
     return this.api.getChats();
   }
@@ -22,14 +23,28 @@ export default class ChatService implements ChatRepository {
     return this.api.retrieveChat(id);
   }
 
-  async updateChat(id: string, data: Partial<Omit<Chat, "id" | "createdAt" | "createdBy">>, merge: boolean = false): Promise<void> {
+  async updateChat(
+    id: string,
+    data: Partial<Omit<Chat, "id" | "createdAt" | "createdBy">>,
+    merge: boolean = false
+  ): Promise<void> {
     return this.api.updateChat(id, data, merge);
   }
 
   async deleteChat(id: string): Promise<void> {
     return this.api.deleteChat(id);
   }
-  
+
+  // Message-------
+  async createMessage(
+    chatId: string,
+    data: Message,
+    createFirebaseCollection?: boolean
+  ): Promise<void> {
+    return this.api.createMessage(chatId, data, createFirebaseCollection)
+  }
+
+  // User----------
   createOrUpdateUser(id: string): Promise<User> {
     return this.api.createOrUpdateUser(id);
   }

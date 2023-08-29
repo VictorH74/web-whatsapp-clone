@@ -5,27 +5,30 @@ import ChatBoxFooter from "./ChatBoxFooter";
 import * as fb from "firebase/firestore";
 import { db } from "@/services/firebase";
 import Image from "next/image";
-import { cache, memo, useCallback, useEffect, useRef, useState } from "react";
 import Loading from "./Loading";
 import { ChatType, Message } from "@/types/chat";
 import useChats from "@/hooks/useChats";
 import ChatBoxBody from "./ChatBoxBody";
+import React from "react";
+import { generateChatId } from "@/utils/functions";
 
-export default memo(function ChatBox() {
+export default React.memo(function ChatBox() {
   const { currentUser } = getAuth();
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [messages, setMessages] = React.useState<Message[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
   const { currentChat, setCurrentChat, service } = useChats();
-  const ref = useRef<HTMLDivElement>(null);
-  const [initialMsgData, setInitialMsgData] = useState(true);
-  const [currentChatId, setCurrentChatId] = useState<string | undefined>();
-  const [headerImg, setHeaderImg] = useState<string | undefined>();
-  const [headerTitle, setHeaderTitle] = useState<string | undefined>(
+  const ref = React.useRef<HTMLDivElement>(null);
+  const [initialMsgData, setInitialMsgData] = React.useState(true);
+  const [currentChatId, setCurrentChatId] = React.useState<
+    string | undefined
+  >();
+  const [headerImg, setHeaderImg] = React.useState<string | undefined>();
+  const [headerTitle, setHeaderTitle] = React.useState<string | undefined>(
     currentChat?.name ? currentChat.name : undefined
   );
 
-  const fetchUserImg = cache(
-    async (members: fb.DocumentReference[], type: ChatType) => {
+  const fetchUserImg = React.cache(
+    async (members: string[], type: ChatType) => {
       if (type === 1) {
         const { currentUser } = getAuth();
 
@@ -33,14 +36,14 @@ export default memo(function ChatBox() {
 
         // TODO: change mebers field from user ref to user id/email
         // userId = members.filter(id => id !== currentUser.email)[0];
-        const userRef = members.filter((m) => m.id !== currentUser.email)[0];
+        const userId = members.filter((id) => id !== currentUser.email)[0];
 
-        const user = await service.retrieveUser(userRef.id);
+        const user = await service.retrieveUser(userId);
 
         if (!user) {
-          alert("Erro ao buscar dados do usuário: Usuário não existe")
-          console.error()
-          return
+          alert("Erro ao buscar dados do usuário: Usuário não existe");
+          console.error();
+          return;
         }
 
         setHeaderImg(user.photoURL);
@@ -51,7 +54,18 @@ export default memo(function ChatBox() {
     }
   );
 
-  useEffect(() => {
+  const checkChat = async (members: string[], callback: () => void) => {
+    const retrievedChat = await service.retrieveChat(generateChatId(members));
+
+    if (retrievedChat) {
+      setCurrentChat(retrievedChat);
+      return;
+    }
+
+    callback();
+  };
+
+  React.useEffect(() => {
     if (currentChat === null) return;
 
     setCurrentChatId(currentChat.id);
@@ -62,9 +76,12 @@ export default memo(function ChatBox() {
 
     if (!currentChat.id) {
       setIsLoading(true);
-      setMessages([]);
-      fetchUserImg(currentChat.members, currentChat.type);
-      return;
+
+      checkChat(currentChat.members, () => {
+        setMessages([]);
+        fetchUserImg(currentChat.members, currentChat.type);
+        return;
+      });
     }
 
     const q = fb.query(
@@ -91,13 +108,13 @@ export default memo(function ChatBox() {
     };
   }, [currentChat]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (messages.length < 0 && !initialMsgData) return;
     setInitialMsgData(false);
     scrollToBottom();
   }, [messages]);
 
-  const scrollToBottom = useCallback(() => {
+  const scrollToBottom = React.useCallback(() => {
     if (ref.current)
       ref.current.scrollTo({
         top: ref.current?.scrollHeight,
@@ -105,7 +122,7 @@ export default memo(function ChatBox() {
       });
   }, []);
 
-  const deleteChat = useCallback(async () => {
+  const deleteChat = React.useCallback(async () => {
     if (currentChat === null || !currentChat.id) return;
 
     await service.deleteChat(currentChat.id);
