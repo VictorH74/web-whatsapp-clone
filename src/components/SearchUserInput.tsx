@@ -15,7 +15,7 @@ export default function SearchUserInput({ value, onChange }: Props) {
 
       <input
         autoComplete="none"
-        name="email"
+        name="emailValue"
         type="text"
         className="bg-[#202C33] p-2 pl-14 rounded-md autofill:none text-sm"
         value={value}

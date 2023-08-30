@@ -1,4 +1,4 @@
-import { FC, FormEvent, ReactNode, useState } from "react";
+import React from "react";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import UserListItem from "./UserListItem";
 import { getAuth } from "firebase/auth";
@@ -14,30 +14,27 @@ import CheckIcon from "@mui/icons-material/Check";
 import useChats from "@/hooks/useChats";
 import useAsideState from "@/hooks/useAsideState";
 
-export default function NewGroupChat() {
-  const [emailValue, setEmailValue] = useState("");
-  const [groupName, setGroupName] = useState("");
-  const [next, setNext] = useState(false);
-  const [submiting, setSubmiting] = useState(false);
-  const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
+export default React.memo(function NewGroupChat() {
+  const [submiting, setSubmiting] = React.useState(false);
+  const [selectedUsers, setSelectedUsers] = React.useState<User[]>([]);
+  const [emailValue, setEmailValue] = React.useState("");
+  const [groupName, setGroupName] = React.useState("");
+  const [next, setNext] = React.useState(false);
   const { currentUser } = getAuth();
-  const { service } = useChats();
+  const { service, setCurrentChat } = useChats();
   const { setAsideContentNumber } = useAsideState();
   const { isLoading, users, resetFn } = useFetchUsers(
     emailValue,
     currentUser?.email || ""
   );
-
   const handleItemClick = (userObj: User, selected?: boolean) => {
     if (selected) {
-      return setSelectedUsers((prev) =>
-        prev.filter((u) => u.email !== userObj.email)
-      );
+      setSelectedUsers((prev) => prev.filter((u) => u.email !== userObj.email));
     }
     setSelectedUsers((prev) => [...prev, userObj]);
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmiting(true);
 
@@ -50,15 +47,15 @@ export default function NewGroupChat() {
       return;
     }
 
-    let userRefs: string[] = [
+    let usersEmail: string[] = [
       currentUser.email,
       ...selectedUsers.map((u) => u.email),
     ];
 
     const owner = currentUser?.email;
 
-    const newChat: Omit<Chat, "id"> = {
-      members: userRefs,
+    const newChat: Chat = {
+      members: usersEmail,
       admList: [owner],
       type: 2,
       createdBy: owner,
@@ -66,7 +63,7 @@ export default function NewGroupChat() {
       createdAt: new Date(),
     };
 
-    const createdChatRef = await service.createChat(newChat);
+    const createdChat = await service.createChat(newChat);
 
     const newMessage: Message = {
       content: `Nova conversa criada por ${currentUser?.displayName}`,
@@ -75,21 +72,24 @@ export default function NewGroupChat() {
       sentAt: new Date(),
     };
 
-    if (!createdChatRef.id) {
+    if (!createdChat.id) {
       console.error();
       return;
     }
 
-    await service.createMessage(createdChatRef.id, newMessage, true);
+    await service.createMessage(createdChat.id, newMessage, true);
+
+    setCurrentChat({ id: createdChat.id, ...newChat });
 
     close();
   };
 
   const close = () => {
-    setSubmiting(false);
     setAsideContentNumber(0);
+    setNext(false);
     setEmailValue("");
     setGroupName("");
+    setSubmiting(false);
     setSelectedUsers([]);
     resetFn();
   };
@@ -135,6 +135,7 @@ export default function NewGroupChat() {
           </Button>
         )}
       </NewChatContainer>
+
       <div
         className={`text-white bg-[#111B21] flex flex-col absolute z-[60] inset-0 ${
           next ? "" : "-translate-x-full"
@@ -156,9 +157,13 @@ export default function NewGroupChat() {
             <GroupIconIcon size={200} iconSize={150} />
             <input
               type="text"
+              name="groupName"
               placeholder="Nome do grupo"
               className="py-1 w-full bg-transparent outline-none border-b-2 border-b-gray-500 focus:border-b-[#00A884]"
-              onChange={(e) => setGroupName(e.currentTarget.value)}
+              value={groupName}
+              onChange={(e) => {
+                setGroupName(e.currentTarget.value);
+              }}
             />
 
             <Button
@@ -173,10 +178,10 @@ export default function NewGroupChat() {
       </div>
     </>
   );
-}
+});
 
-const Button: FC<{
-  children: ReactNode;
+const Button: React.FC<{
+  children: React.ReactNode;
   onClick?: () => void;
   type?: "button" | "submit" | "reset" | undefined;
   disabled?: boolean;

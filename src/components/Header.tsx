@@ -57,9 +57,9 @@ const Header = ({
           <AccountCircleIcon sx={{ color: "white", fontSize: "45px" }} />
         )}
 
-        <div className="flex flex-col">
+        <div className="flex flex-col w-auto">
           <p className="text-sm">{heading ?? heading}</p>
-          <p className="text-xs">{subHeading ?? subHeading}</p>
+          <p className="text-xs truncate">{subHeading ?? subHeading}</p>
         </div>
       </div>
       <div className="flex flex-row gap-7 justify-evenly">

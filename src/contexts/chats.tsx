@@ -1,7 +1,7 @@
 "use client";
 import { db } from "@/services/firebase";
 import { ReactNode, createContext, useEffect, useState } from "react";
-import * as firebase from "firebase/firestore";
+import * as fs from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { getAuth } from "firebase/auth";
 import { Chat } from "@/types/chat";
@@ -9,7 +9,7 @@ import ChatService from "@/services/chat";
 import FirebaseApi from "@/services/firebaseApi";
 
 type HeaderDataType =
-  | [firebase.DocumentReference, firebase.DocumentReference]
+  | [fs.DocumentReference, fs.DocumentReference]
   | null;
 
 interface ChatsProvider {
@@ -73,6 +73,8 @@ export default function ChatsProvider({ children }: { children: ReactNode }) {
         },
         true
       );
+
+      console.log("beforeunload", "called")
     };
     window.addEventListener("beforeunload", handleBeforeUnload);
 
@@ -84,17 +86,17 @@ export default function ChatsProvider({ children }: { children: ReactNode }) {
       lastTimeOnline: new Date(),
     });
 
-    const q = firebase.query(
-      firebase.collection(db, "chat"),
-      firebase.where("members", "array-contains", email)
+    const q = fs.query(
+      fs.collection(db, "chat"),
+      fs.where("members", "array-contains", email),
+      fs.orderBy("createdAt", "desc")
     );
 
-    const unsubscribe = firebase.onSnapshot(q, (querySnapshot) => {
+    const unsubscribe = fs.onSnapshot(q, (querySnapshot) => {
       const chatDatas: any[] = [];
       querySnapshot.forEach((doc) => {
         chatDatas.push({ id: doc.id, ...doc.data() });
       });
-      console.log(chatDatas);
       setChats(() => chatDatas);
       setIsLoading(false);
     });

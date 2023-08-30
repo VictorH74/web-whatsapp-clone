@@ -14,22 +14,20 @@ import { formatNumber, generateChatId } from "@/utils/functions";
 import { User } from "@/types/user";
 
 export default React.memo(function ChatBox() {
-  const { currentUser } = getAuth();
   const [messages, setMessages] = React.useState<Message[]>([]);
-  const [isLoading, setIsLoading] = React.useState(true);
-  const { currentChat, setCurrentChat, service } = useChats();
-  const ref = React.useRef<HTMLDivElement>(null);
   const [initialMsgData, setInitialMsgData] = React.useState(true);
-  const [currentChatId, setCurrentChatId] = React.useState<
-    string | undefined
-  >();
   const [headerImg, setHeaderImg] = React.useState<string | undefined>();
-  const [headerTitle, setHeaderTitle] = React.useState<string | undefined>(
-    currentChat?.name ? currentChat.name : undefined
-  );
+  const [headerTitle, setHeaderTitle] = React.useState<string | undefined>();
   const [headerSubHeading, setHeaderSubHeading] = React.useState<
     string | undefined
   >();
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [currentChatId, setCurrentChatId] = React.useState<
+    string | undefined
+  >();
+  const { currentUser } = getAuth();
+  const { currentChat, setCurrentChat, service } = useChats();
+  const ref = React.useRef<HTMLDivElement>(null);
 
   const fetchUserImg = React.cache((members: string[], type: ChatType) => {
     if (type !== 1) {
@@ -38,7 +36,6 @@ export default React.memo(function ChatBox() {
     }
 
     const { currentUser } = getAuth();
-
     if (!currentUser?.email) return;
 
     const userId = members.filter((id) => id !== currentUser.email)[0];
@@ -46,7 +43,6 @@ export default React.memo(function ChatBox() {
     return fb.onSnapshot(fb.doc(db, "user", userId), (doc) => {
       if (doc.exists()) {
         const user: User = doc.data() as User;
-        console.log(user);
         setHeaderImg(user.photoURL);
         setHeaderTitle(user.displayName);
         setIsLoading(false);
@@ -99,7 +95,7 @@ export default React.memo(function ChatBox() {
   React.useEffect(() => {
     if (currentChat === null) return;
 
-    let onSub: fb.Unsubscribe | undefined;
+    let unSubscribeUser: fb.Unsubscribe | undefined;
 
     setCurrentChatId(currentChat.id);
 
@@ -112,7 +108,7 @@ export default React.memo(function ChatBox() {
 
       checkChat(currentChat.members, () => {
         setMessages([]);
-        onSub = fetchUserImg(currentChat.members, currentChat.type);
+        unSubscribeUser = fetchUserImg(currentChat.members, currentChat.type);
         return;
       });
     }
@@ -122,25 +118,26 @@ export default React.memo(function ChatBox() {
       fb.orderBy("sentAt", "asc")
     );
 
-    const unsubscribe = fb.onSnapshot(q, (querySnapshot) => {
+    const unsubscribeMessages = fb.onSnapshot(q, (querySnapshot) => {
       const messageDatas: any[] = [];
       querySnapshot.forEach((doc) => {
         messageDatas.push({ id: doc.id, ...doc.data() });
       });
       setMessages(() => messageDatas);
       if (currentChat.type === 1) {
-        onSub = fetchUserImg(currentChat.members, currentChat.type);
+        unSubscribeUser = fetchUserImg(currentChat.members, currentChat.type);
         return;
       }
       setIsLoading(false);
+      setHeaderTitle(currentChat.name || "Grupo sem nome");
+      setHeaderSubHeading(currentChat.members.join(", "))
     });
 
     return () => {
-      if (onSub) {
-        onSub();
+      if (unSubscribeUser) {
+        unSubscribeUser();
       }
-      unsubscribe();
-      console.log("null");
+      unsubscribeMessages();
     };
   }, [currentChat]);
 
@@ -160,6 +157,8 @@ export default React.memo(function ChatBox() {
 
   const deleteChat = React.useCallback(async () => {
     if (currentChat === null || !currentChat.id) return;
+
+    setCurrentChat(null)
 
     await service.deleteChat(currentChat.id);
 
