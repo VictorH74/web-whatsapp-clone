@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import { auth, provider } from "@/services/firebase";
 import {
   GoogleAuthProvider,
@@ -9,7 +9,8 @@ import {
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-  const router = useRouter();
+  const router = useRouter()
+  
   const signInwithGoogle = () => {
     setPersistence(auth, inMemoryPersistence).then(() => {
       signInWithPopup(auth, provider)

@@ -11,7 +11,7 @@ import useAsideState from "@/hooks/useAsideState";
 import useChats from "@/hooks/useChats";
 
 export default function Aside() {
-  const { currentUser, signOut } = getAuth();
+  const auth = getAuth();
   const router = useRouter();
   const { setAsideContentNumber } = useAsideState();
   const { service } = useChats();
@@ -21,7 +21,7 @@ export default function Aside() {
       <NewGroupChat />
       <NewPrivateChat />
       <Header
-        imgSrc={currentUser?.photoURL || undefined}
+        imgSrc={auth.currentUser?.photoURL || undefined}
         actions={[
           <button key={(Math.random() + 1).toString(36).substring(7)}>
             <GroupsIcon sx={{ color: "white" }} />
@@ -45,7 +45,7 @@ export default function Aside() {
           },
           {
             onClick() {
-              const email = currentUser?.email;
+              const email = auth.currentUser?.email;
               if (email) {
                 service.createOrUpdateUser(
                   {
@@ -56,7 +56,7 @@ export default function Aside() {
                   true
                 );
               }
-              signOut();
+              auth.signOut();
               router.replace("/login");
             },
             title: "Sair",
