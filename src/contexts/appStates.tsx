@@ -1,41 +1,58 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import { db } from "@/services/firebase";
-import { ReactNode, createContext, useEffect, useState } from "react";
+import {
+  ReactNode,
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import * as fs from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { getAuth } from "firebase/auth";
 import { Chat } from "@/types/chat";
 import ChatService from "@/services/chat";
 import FirebaseApi from "@/services/firebaseApi";
+import { User } from "@/types/user";
 
-type HeaderDataType =
-  | [fs.DocumentReference, fs.DocumentReference]
-  | null;
+type HeaderDataType = [fs.DocumentReference, fs.DocumentReference] | null;
+type UsersObjType = Record<string, User>;
 
-interface ChatsProvider {
-  chats: Chat[] | [];
+interface AppStatesProviderI {
+  chats: Chat[];
+  users: UsersObjType;
   currentChat: Chat | null;
   isLoading: boolean;
   setCurrentChat: (chat: Chat | null) => void;
   headerData: HeaderDataType;
   setHeaderData: (data: HeaderDataType | null) => void;
   service: ChatService;
+  updateUserObj: (userId: string, data: Partial<User>) => void
 }
 
 const service = new ChatService(new FirebaseApi());
 
-export const ChatsCtx = createContext<ChatsProvider>({
+export const AppStatesCtx = createContext<AppStatesProviderI>({
   chats: [],
+  users: {},
   currentChat: null,
   isLoading: true,
   setCurrentChat: () => null,
   headerData: null,
   setHeaderData: () => null,
   service: service,
+  updateUserObj: () => null
 });
 
-export default function ChatsProvider({ children }: { children: ReactNode }) {
-  const [chats, setChats] = useState<Chat[] | []>([]);
+export default function AppStatesProvider({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const [chats, setChats] = useState<Chat[]>([]);
+  const [users, setUsers] = useState<UsersObjType>({});
   const [currentChat, setCurrentChatState] = useState<Chat | null>(null);
   const [headerData, setHeaderDataState] = useState<HeaderDataType | null>(
     null
@@ -43,6 +60,29 @@ export default function ChatsProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const auth = getAuth();
+  const userEmails = useMemo<string[]>(() => {
+    let emails: string[] = [];
+    chats.forEach((c) => {
+      emails.push(...c.members);
+    });
+    return emails;
+  }, [chats]);
+
+  const updateUserObj = (userId: string, data: Partial<User>) => {
+    setUsers((prev) => ({ ...prev, [userId]: { ...prev[userId], ...data } }));
+  };
+
+  const retrieveUsers = useCallback(async (emails: string[]) => {
+    if (emails.length === 0) return;
+    const users = await service.getUsersByEmailList(emails);
+
+    setUsers(
+      users.reduce(
+        (obj, user) => ({ ...obj, [user.email]: user }),
+        {}
+      ) as UsersObjType
+    );
+  }, []);
 
   const setCurrentChat = (chat: Chat | null) => {
     setCurrentChatState(() => chat);
@@ -51,6 +91,10 @@ export default function ChatsProvider({ children }: { children: ReactNode }) {
   const setHeaderData = (data: HeaderDataType | null) => {
     setHeaderDataState(() => data);
   };
+
+  useEffect(() => {
+    retrieveUsers(userEmails);
+  }, [userEmails]);
 
   useEffect(() => {
     if (auth.currentUser === null) {
@@ -64,7 +108,7 @@ export default function ChatsProvider({ children }: { children: ReactNode }) {
 
     const handleBeforeUnload = () => {
       if (!email) return;
-      
+
       service.createOrUpdateUser(
         {
           email: email,
@@ -74,7 +118,7 @@ export default function ChatsProvider({ children }: { children: ReactNode }) {
         true
       );
 
-      console.log("beforeunload", "called")
+      console.log("beforeunload", "called");
     };
     window.addEventListener("beforeunload", handleBeforeUnload);
 
@@ -108,8 +152,9 @@ export default function ChatsProvider({ children }: { children: ReactNode }) {
   }, [auth, router]);
 
   return (
-    <ChatsCtx.Provider
+    <AppStatesCtx.Provider
       value={{
+        users,
         chats,
         currentChat,
         isLoading,
@@ -117,9 +162,10 @@ export default function ChatsProvider({ children }: { children: ReactNode }) {
         headerData,
         setHeaderData,
         service,
+        updateUserObj
       }}
     >
       {children}
-    </ChatsCtx.Provider>
+    </AppStatesCtx.Provider>
   );
 }

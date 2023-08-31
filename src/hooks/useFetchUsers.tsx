@@ -1,7 +1,7 @@
 import { User } from "@/types/user";
 import { useState } from "react";
 import { useDebounce } from "react-use";
-import useChats from "./useChats";
+import useAppStates from "./useAppStates";
 
 export default function useFetchUsers(
   emailValue: string,
@@ -9,7 +9,7 @@ export default function useFetchUsers(
 ): { isLoading: boolean; users: User[]; resetFn: () => void } {
   const [isLoading, setIsLoading] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
-  const { service } = useChats();
+  const { service } = useAppStates();
 
   const resetFn = () => {
     setIsLoading(false);

@@ -87,4 +87,21 @@ export default class FirebaseApi implements Api {
 
     return users;
   }
+
+  async getUsersByEmailList(emails: string[]): Promise<User[]> {
+    const q = fs.query(
+      fs.collection(db, "user"),
+      fs.where("email", "in", emails),
+    );
+
+    const querySnapshot = await fs.getDocs(q);
+
+    const users: User[] = [];
+    querySnapshot.forEach((doc) => {
+      const user = doc.data();
+      users.push(user as User);
+    });
+
+    return users;
+  }
 }

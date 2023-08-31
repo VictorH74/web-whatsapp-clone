@@ -56,4 +56,8 @@ export default class ChatService implements ChatRepository {
   getUsersByEmail(email: string, ownerEmail?: string): Promise<User[]> {
     return this.api.getUsersByEmail(email, ownerEmail);
   }
+
+  getUsersByEmailList(emails: string[]): Promise<User[]> {
+    return this.api.getUsersByEmailList(emails);
+  }
 }

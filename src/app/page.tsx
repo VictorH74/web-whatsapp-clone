@@ -5,10 +5,10 @@ import Loading from "@/components/Loading";
 import Providers from "@/components/Providers";
 import Aside from "@/components/Aside";
 import AsideProvider from "@/contexts/aside";
-import useChats from "@/hooks/useChats";
+import useAppStates from "@/hooks/useAppStates";
 
 const Main = () => {
-  const { isLoading } = useChats();
+  const { isLoading } = useAppStates();
 
   return (
     <>

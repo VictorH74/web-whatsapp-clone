@@ -6,7 +6,7 @@ import { User } from "@/types/user";
 import NewChatContainer from "./NewChatContainer";
 
 import { ComunityIcon, GroupIconIcon } from "./IconPresets";
-import useChats from "@/hooks/useChats";
+import useAppStates from "@/hooks/useAppStates";
 import { Chat } from "@/types/chat";
 import useFetchUsers from "@/hooks/useFetchUsers";
 import SearchUserInput from "./SearchUserInput";
@@ -15,7 +15,7 @@ import useAsideState from "@/hooks/useAsideState";
 export default function NewPrivateChat() {
   const [emailValue, setEmailValue] = useState("");
   const { currentUser } = getAuth();
-  const { setCurrentChat } = useChats();
+  const { setCurrentChat } = useAppStates();
   const { setAsideContentNumber } = useAsideState();
   const { isLoading, users, resetFn } = useFetchUsers(
     emailValue,

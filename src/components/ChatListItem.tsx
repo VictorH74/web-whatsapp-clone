@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import useChats from "@/hooks/useChats";
+import useAppStates from "@/hooks/useAppStates";
 import { Chat } from "@/types/chat";
 import { getAuth } from "firebase/auth";
 import Image from "next/image";
@@ -16,7 +16,7 @@ export default function ChatListItem({ data, isLastItem }: Props) {
   const [chatPhoto, setChatPhoto] = useState<string | undefined>();
   const [chatTitle, setChatTitle] = useState<string | null>(data.name);
   const ref = useRef<HTMLDivElement>(null);
-  const { setCurrentChat, service } = useChats();
+  const { setCurrentChat, service, users } = useAppStates();
   const [left, setLeft] = useState(0);
 
   useEffect(() => {
@@ -33,6 +33,14 @@ export default function ChatListItem({ data, isLastItem }: Props) {
     if (!currentUser?.email) return;
 
     const userId = data.members.filter((id) => id !== currentUser.email)[0];
+
+    // if (userId in users) {
+    //   const user = users[userId];
+    //   console.log("ChatListItem", user)
+    //   setChatPhoto(user.photoURL);
+    //   setChatTitle(user.displayName);
+    //   return;
+    // }
 
     const user = await service.retrieveUser(userId);
 

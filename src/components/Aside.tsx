@@ -8,13 +8,13 @@ import { getAuth } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import NewPrivateChat from "./NewPrivateChat";
 import useAsideState from "@/hooks/useAsideState";
-import useChats from "@/hooks/useChats";
+import useAppStates from "@/hooks/useAppStates";
 
 export default function Aside() {
   const auth = getAuth();
   const router = useRouter();
   const { setAsideContentNumber } = useAsideState();
-  const { service } = useChats();
+  const { service } = useAppStates();
 
   return (
     <aside className="relative border-r-[1px] border-r-zinc-700 min-w-[340px] w-[620px] max-h-screen bg-[#111B21] flex flex-col custom-scrollbar">

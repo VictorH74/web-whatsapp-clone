@@ -4,7 +4,7 @@ import MicIcon from "@mui/icons-material/Mic";
 import SendIcon from "@mui/icons-material/Send";
 import { ChangeEvent, FormEvent, useState } from "react";
 import { Chat, Message } from "@/types/chat";
-import useChats from "@/hooks/useChats";
+import useAppStates from "@/hooks/useAppStates";
 import { generateChatId } from "@/utils/functions";
 
 interface Props {
@@ -17,7 +17,7 @@ export default function ChatBoxFooter({
   scrollToBottom,
 }: Props) {
   const [content, setContent] = useState("");
-  const { currentChat, setCurrentChat, service } = useChats();
+  const { currentChat, setCurrentChat, service } = useAppStates();
 
   const handleChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     setContent(event.target.value);

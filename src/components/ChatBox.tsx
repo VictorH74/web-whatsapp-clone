@@ -7,7 +7,7 @@ import { db } from "@/services/firebase";
 import Image from "next/image";
 import Loading from "./Loading";
 import { ChatType, Message } from "@/types/chat";
-import useChats from "@/hooks/useChats";
+import useAppStates from "@/hooks/useAppStates";
 import ChatBoxBody from "./ChatBoxBody";
 import React from "react";
 import { formatNumber, generateChatId } from "@/utils/functions";
@@ -26,7 +26,8 @@ export default React.memo(function ChatBox() {
     string | undefined
   >();
   const { currentUser } = getAuth();
-  const { currentChat, setCurrentChat, service } = useChats();
+  const { users, currentChat, setCurrentChat, service, updateUserObj } =
+    useAppStates();
   const ref = React.useRef<HTMLDivElement>(null);
 
   const fetchUserImg = React.cache((members: string[], type: ChatType) => {
@@ -40,27 +41,51 @@ export default React.memo(function ChatBox() {
 
     const userId = members.filter((id) => id !== currentUser.email)[0];
 
+    const hasUserId = userId in users;
+
+    if (hasUserId) {
+      setHeaderImg(() => users[userId].photoURL);
+      setHeaderTitle(() => users[userId].displayName);
+      setIsLoading(false);
+    }
+
     return fb.onSnapshot(fb.doc(db, "user", userId), (doc) => {
       if (doc.exists()) {
         const user: User = doc.data() as User;
-        setHeaderImg(user.photoURL);
-        setHeaderTitle(user.displayName);
-        setIsLoading(false);
+
+        const diferentUserImg = headerImg !== user.photoURL;
+        const diferentUserName = headerTitle !== user.displayName;
+
+        if (diferentUserImg) setHeaderImg(user.photoURL);
+        if (diferentUserName) setHeaderTitle(user.displayName);
+        if (diferentUserImg || diferentUserName) {
+          updateUserObj(userId, {
+            photoURL: user.photoURL,
+            displayName: user.displayName,
+          });
+        }
+
+        if (!hasUserId) setIsLoading(false);
 
         let subHeading;
         if (user.online) {
           subHeading = "online";
         } else {
           const unknowDate = user.lastTimeOnline as unknown;
+
           const date = new Date((unknowDate as fb.Timestamp).seconds * 1000);
-          const day = date.getDay();
-          const mouth = date.getMonth();
-          const year = date.getFullYear();
+          const [day, mouth, year] = [
+            date.getDay(),
+            date.getMonth(),
+            date.getFullYear(),
+          ];
 
           const currenDate = new Date();
-          const cDay = currenDate.getDay();
-          const cMouth = currenDate.getMonth();
-          const cYear = currenDate.getFullYear();
+          const [cDay, cMouth, cYear] = [
+            currenDate.getDay(),
+            currenDate.getMonth(),
+            currenDate.getFullYear(),
+          ];
 
           if (day === cDay - 1 && mouth === cMouth && year === cYear) {
             subHeading = `visto por ultimo ontem às ${formatNumber(
@@ -130,7 +155,7 @@ export default React.memo(function ChatBox() {
       }
       setIsLoading(false);
       setHeaderTitle(currentChat.name || "Grupo sem nome");
-      setHeaderSubHeading(currentChat.members.join(", "))
+      setHeaderSubHeading(currentChat.members.join(", "));
     });
 
     return () => {
@@ -158,7 +183,7 @@ export default React.memo(function ChatBox() {
   const deleteChat = React.useCallback(async () => {
     if (currentChat === null || !currentChat.id) return;
 
-    setCurrentChat(null)
+    setCurrentChat(null);
 
     await service.deleteChat(currentChat.id);
 

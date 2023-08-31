@@ -11,7 +11,7 @@ import SearchUserInput from "./SearchUserInput";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { GroupIconIcon } from "./IconPresets";
 import CheckIcon from "@mui/icons-material/Check";
-import useChats from "@/hooks/useChats";
+import useAppStates from "@/hooks/useAppStates";
 import useAsideState from "@/hooks/useAsideState";
 
 export default React.memo(function NewGroupChat() {
@@ -21,7 +21,7 @@ export default React.memo(function NewGroupChat() {
   const [groupName, setGroupName] = React.useState("");
   const [next, setNext] = React.useState(false);
   const { currentUser } = getAuth();
-  const { service, setCurrentChat } = useChats();
+  const { service, setCurrentChat } = useAppStates();
   const { setAsideContentNumber } = useAsideState();
   const { isLoading, users, resetFn } = useFetchUsers(
     emailValue,

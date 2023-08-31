@@ -1,8 +1,8 @@
 import ChatListItem from "./ChatListItem";
-import useChats from "@/hooks/useChats";
+import useAppStates from "@/hooks/useAppStates";
 
 export default function ChatList() {
-  const { chats } = useChats();
+  const { chats } = useAppStates();
 
   return (
     <ul className="overflow-auto h-full">

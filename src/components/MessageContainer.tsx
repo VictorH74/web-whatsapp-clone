@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import useChats from "@/hooks/useChats";
+import useAppStates from "@/hooks/useAppStates";
 import { ChatType, Message } from "@/types/chat";
 import { formatNumber, getDate } from "@/utils/functions";
 import { getAuth } from "firebase/auth";
@@ -19,17 +19,27 @@ export default memo(function MessageContainer({
   const [sender, setSender] = useState<string | undefined>(undefined);
   const [owner, setOwner] = useState<boolean>(false);
   const { currentUser } = getAuth();
-  const { service } = useChats();
+  const { service, users } = useAppStates();
 
   const date = getDate(message.sentAt);
 
+  console.log(senderNameColor);
+
   const getSender = async (senderId: string) => {
+    if (senderId in users) {
+      const user = users[senderId];
+      setSender(user?.displayName);
+      return;
+    }
     const user = await service.retrieveUser(senderId);
     setSender(user?.displayName);
   };
 
   useEffect(() => {
-    if (message.sender === "system") return;
+    if (message.sender === "system") {
+      setSender(message.sender);
+      return;
+    }
 
     if (currentUser?.email === message.sender) {
       setSender(currentUser?.displayName || "-");
@@ -38,7 +48,7 @@ export default memo(function MessageContainer({
     }
 
     if (type !== 2) {
-      setSender("X");
+      setSender("x");
       return;
     }
 
@@ -61,7 +71,7 @@ export default memo(function MessageContainer({
       key={message.sentAt.toString()}
     >
       {type === 2 && !owner && sender !== "system" && (
-        <p className={`text-${senderNameColor}`}>{sender}</p>
+        <p style={{ color: senderNameColor }}>{sender}</p>
       )}
       <p className="break-words">{message.content}</p>
       {sender !== "system" && (
