@@ -1,7 +1,7 @@
 import { User } from "@/types/user";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import React from "react";
 import { EmptyUserImgIcon } from "./IconPresets";
 
 interface Props {
@@ -12,10 +12,10 @@ interface Props {
 }
 
 export default function ListItemContainer({ user, last, selected, onClick }: Props) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [left, setLeft] = useState(0);
+  const ref = React.useRef<HTMLDivElement>(null);
+  const [left, setLeft] = React.useState(0);
 
-  useEffect(() => {
+  React.useEffect(() => {
     let left = ref.current?.offsetLeft;
     if (!left) return;
     setLeft(() => left as number);

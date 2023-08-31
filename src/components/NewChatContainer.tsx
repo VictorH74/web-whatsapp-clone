@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { ContentNumberType } from "@/contexts/aside";
 import useAsideState from "@/hooks/useAsideState";
+import { ContentNumberType } from "@/contexts/asideCtx";
 
 interface Props {
   contentNumber: ContentNumberType;

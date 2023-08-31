@@ -1,4 +1,4 @@
-import { FC, ReactNode, useEffect, useRef, useState } from "react";
+import React from "react";
 import UserListItem from "./UserListItem";
 import { getAuth } from "firebase/auth";
 import Loading from "./Loading";
@@ -13,7 +13,7 @@ import SearchUserInput from "./SearchUserInput";
 import useAsideState from "@/hooks/useAsideState";
 
 export default function NewPrivateChat() {
-  const [emailValue, setEmailValue] = useState("");
+  const [emailValue, setEmailValue] = React.useState("");
   const { currentUser } = getAuth();
   const { setCurrentChat } = useAppStates();
   const { setAsideContentNumber } = useAsideState();
@@ -99,16 +99,16 @@ export default function NewPrivateChat() {
   );
 }
 
-const AditionalItem: FC<{
-  icon: ReactNode;
+const AditionalItem: React.FC<{
+  icon: React.ReactNode;
   label: string;
   disabled?: boolean;
   onClick?: () => void;
 }> = ({ icon, label, disabled = false, onClick }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const [left, setLeft] = useState(0);
+  const ref = React.useRef<HTMLDivElement>(null);
+  const [left, setLeft] = React.useState(0);
 
-  useEffect(() => {
+  React.useEffect(() => {
     let left = ref.current?.offsetLeft;
     if (!left) return;
     setLeft(() => left as number);

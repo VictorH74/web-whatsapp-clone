@@ -3,7 +3,7 @@ import useAppStates from "@/hooks/useAppStates";
 import { Chat } from "@/types/chat";
 import { getAuth } from "firebase/auth";
 import Image from "next/image";
-import { cache, useEffect, useRef, useState } from "react";
+import React from "react";
 import { EmptyUserImgIcon, GroupIconIcon } from "./IconPresets";
 import { formatNumber, getDate } from "@/utils/functions";
 
@@ -13,13 +13,13 @@ interface Props {
 }
 
 export default function ChatListItem({ data, isLastItem }: Props) {
-  const [chatPhoto, setChatPhoto] = useState<string | undefined>();
-  const [chatTitle, setChatTitle] = useState<string | null>(data.name);
-  const ref = useRef<HTMLDivElement>(null);
+  const [chatPhoto, setChatPhoto] = React.useState<string | undefined>();
+  const [chatTitle, setChatTitle] = React.useState<string | null>(data.name);
+  const ref = React.useRef<HTMLDivElement>(null);
   const { setCurrentChat, service, users } = useAppStates();
-  const [left, setLeft] = useState(0);
+  const [left, setLeft] = React.useState(0);
 
-  useEffect(() => {
+  React.useEffect(() => {
     let left = ref.current?.offsetLeft;
     if (!left) return;
     setLeft(() => left as number);
@@ -27,7 +27,7 @@ export default function ChatListItem({ data, isLastItem }: Props) {
 
   const date = getDate(data.recentMessage?.sentAt);
 
-  const fetchUser = cache(async () => {
+  const fetchUser = React.cache(async () => {
     const { currentUser } = getAuth();
 
     if (!currentUser?.email) return;
@@ -40,7 +40,7 @@ export default function ChatListItem({ data, isLastItem }: Props) {
     setChatTitle(user?.displayName || "Usuário não encontrado");
   });
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (data.type === 1) {
       fetchUser();
     }

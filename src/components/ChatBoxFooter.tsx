@@ -2,7 +2,7 @@ import TagFacesIcon from "@mui/icons-material/TagFaces";
 import AddIcon from "@mui/icons-material/Add";
 import MicIcon from "@mui/icons-material/Mic";
 import SendIcon from "@mui/icons-material/Send";
-import { ChangeEvent, FormEvent, useState } from "react";
+import React from "react";
 import { Chat, Message } from "@/types/chat";
 import useAppStates from "@/hooks/useAppStates";
 import { generateChatId } from "@/utils/functions";
@@ -18,17 +18,17 @@ export default function ChatBoxFooter({
   currentUserEmail,
   scrollToBottom,
 }: Props) {
-  const [content, setContent] = useState("");
+  const [content, setContent] = React.useState("");
   const { currentChat, setCurrentChat, service } = useAppStates();
   const { replyMsg, setReplyMsg } = useChatBoxStates();
 
-  const handleChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+  const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(event.target.value);
     event.target.style.height = "auto";
     event.target.style.height = `${event.target.scrollHeight}px`;
   };
 
-  const handleSubmit = async (event: FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setContent(() => "");
 

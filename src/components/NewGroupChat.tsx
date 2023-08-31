@@ -65,10 +65,11 @@ export default React.memo(function NewGroupChat() {
 
     const createdChat = await service.createChat(newChat);
 
-    const newMessage: Message = {
+    const newMessage: Omit<Message, "id"> = {
       content: `Nova conversa criada por ${currentUser?.displayName}`,
       sender: "system",
       readBy: [],
+      replyMsg: null,
       sentAt: new Date(),
     };
 

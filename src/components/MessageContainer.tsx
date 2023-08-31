@@ -3,16 +3,14 @@ import useAppStates from "@/hooks/useAppStates";
 import { Chat, ChatType, Message } from "@/types/chat";
 import { formatNumber, getDate } from "@/utils/functions";
 import { getAuth } from "firebase/auth";
-import { memo, useEffect, useRef, useState } from "react";
+import React from "react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import Button from "@mui/material/Button";
 import ClickAwayListener from "@mui/material/ClickAwayListener";
 import Grow from "@mui/material/Grow";
 import Paper from "@mui/material/Paper";
 import Popper from "@mui/material/Popper";
 import MenuItem from "@mui/material/MenuItem";
 import MenuList from "@mui/material/MenuList";
-import Stack from "@mui/material/Stack";
 import useChatBoxStates from "@/hooks/useChatBoxStates";
 import RepliedMsgContainer from "./RepliedMsgContainer";
 
@@ -22,19 +20,19 @@ interface Props {
   senderNameColor: string;
 }
 
-export default memo(function MessageContainer({
+export default React.memo(function MessageContainer({
   message,
   type,
   senderNameColor,
 }: Props) {
-  const [sender, setSender] = useState<string | undefined>(undefined);
-  const [owner, setOwner] = useState<boolean>(false);
-  const [mouseOver, setMouseOver] = useState(false);
+  const [sender, setSender] = React.useState<string | undefined>(undefined);
+  const [owner, setOwner] = React.useState<boolean>(false);
+  const [mouseOver, setMouseOver] = React.useState(false);
   const { currentUser } = getAuth();
   const { service, users, setCurrentChat } = useAppStates();
   const { setReplyMsg } = useChatBoxStates();
-  const [open, setOpen] = useState(false);
-  const anchorRef = useRef<HTMLButtonElement>(null);
+  const [open, setOpen] = React.useState(false);
+  const anchorRef = React.useRef<HTMLButtonElement>(null);
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
@@ -97,8 +95,8 @@ export default memo(function MessageContainer({
   }
 
   // return focus to the button when we transitioned from !open -> open
-  const prevOpen = useRef(open);
-  useEffect(() => {
+  const prevOpen = React.useRef(open);
+  React.useEffect(() => {
     if (prevOpen.current === true && open === false) {
       anchorRef.current!.focus();
     }
@@ -129,7 +127,7 @@ export default memo(function MessageContainer({
     }
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (message.sender === "system") {
       setSender(message.sender);
       return;
@@ -201,7 +199,7 @@ export default memo(function MessageContainer({
                     placement === "bottom-start" ? "left top" : "left bottom",
                 }}
               >
-                <Paper sx={{backgroundColor: "#233138", color: "#cacaca"}}>
+                <Paper sx={{ backgroundColor: "#233138", color: "#cacaca" }}>
                   <ClickAwayListener onClickAway={handleClose}>
                     <MenuList
                       autoFocusItem={open}
