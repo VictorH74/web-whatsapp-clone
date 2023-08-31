@@ -185,7 +185,7 @@ export default React.memo(function MessageContainer({
             open={open}
             anchorEl={anchorRef.current}
             role={undefined}
-            placement="bottom-start"
+            placement="top-start"
             transition
             disablePortal
             className="z-[60]"
@@ -242,7 +242,7 @@ export default React.memo(function MessageContainer({
       <p className="break-words ">
         {message.content}
         {sender !== "system" && (
-          <span className="float-right translate-x-[2px] translate-y-[6px] text-[11px] self-end w-min">{`${formatNumber(
+          <span className="float-right translate-x-[2px] translate-y-[6px] ml-1 text-[11px] self-end w-min">{`${formatNumber(
             date.hour
           )}:${formatNumber(date.minute)}`}</span>
         )}

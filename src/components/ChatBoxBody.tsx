@@ -63,7 +63,7 @@ export default forwardRef(function ChatBoxBody(
   return (
     <div className="flex flex-col grow justify-end text-white overflow-y-auto overflow-x-hidden custom-scrollbar">
       <div
-        className="flex flex-col gap-3 p-4 overflow-y-auto  overflow-x-hidden"
+        className="flex flex-col gap-3 p-4 h-auto pt-52 overflow-x-hidden"
         ref={ref}
       >
         {messages.map((m) => (

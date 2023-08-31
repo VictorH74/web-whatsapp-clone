@@ -76,8 +76,6 @@ const Header = ({
               <MoreVertIcon sx={{ color: "white" }} />
             </button>
             <Menu
-              id="demo-positioned-menu"
-              aria-labelledby="demo-positioned-button"
               anchorEl={anchorEl}
               open={open}
               onClose={handleClose}
