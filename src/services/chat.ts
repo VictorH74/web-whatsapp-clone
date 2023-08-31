@@ -38,7 +38,7 @@ export default class ChatService implements ChatRepository {
   // Message-------
   async createMessage(
     chatId: string,
-    data: Message,
+    data: Omit<Message, "id">,
     createFirebaseCollection?: boolean
   ): Promise<void> {
     return this.api.createMessage(chatId, data, createFirebaseCollection)

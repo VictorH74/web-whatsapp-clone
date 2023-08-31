@@ -23,10 +23,16 @@ export default function Aside() {
       <Header
         imgSrc={auth.currentUser?.photoURL || undefined}
         actions={[
-          <button key={(Math.random() + 1).toString(36).substring(7)}>
+          <button
+            onClick={() => alert("Não funcional")}
+            key={(Math.random() + 1).toString(36).substring(7)}
+          >
             <GroupsIcon sx={{ color: "white" }} />
           </button>,
-          <button key={(Math.random() + 1).toString(36).substring(7)}>
+          <button
+            onClick={() => alert("Não funcional")}
+            key={(Math.random() + 1).toString(36).substring(7)}
+          >
             <TrackChangesIcon sx={{ color: "white" }} />
           </button>,
           <button

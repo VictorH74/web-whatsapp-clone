@@ -4,8 +4,9 @@ import ChatBox from "@/components/ChatBox";
 import Loading from "@/components/Loading";
 import Providers from "@/components/Providers";
 import Aside from "@/components/Aside";
-import AsideProvider from "@/contexts/aside";
 import useAppStates from "@/hooks/useAppStates";
+import ChatBoxStatesProvider from "@/contexts/chatBoxCtx";
+import AsideProvider from "@/contexts/asideCtx";
 
 const Main = () => {
   const { isLoading } = useAppStates();
@@ -22,7 +23,9 @@ const Main = () => {
             <Aside />
           </AsideProvider>
 
-          <ChatBox />
+          <ChatBoxStatesProvider>
+            <ChatBox />
+          </ChatBoxStatesProvider>
         </main>
       )}
     </>

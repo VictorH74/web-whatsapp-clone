@@ -13,7 +13,7 @@ export default interface ChatRepository {
 
   createMessage(
     chatId: string,
-    data: Message,
+    data: Omit<Message, "id">,
     createFirebaseCollection?: boolean
   ): void;
 

@@ -6,6 +6,8 @@ import { ChangeEvent, FormEvent, useState } from "react";
 import { Chat, Message } from "@/types/chat";
 import useAppStates from "@/hooks/useAppStates";
 import { generateChatId } from "@/utils/functions";
+import useChatBoxStates from "@/hooks/useChatBoxStates";
+import RepliedMsgContainer from "./RepliedMsgContainer";
 
 interface Props {
   currentUserEmail: string;
@@ -18,6 +20,7 @@ export default function ChatBoxFooter({
 }: Props) {
   const [content, setContent] = useState("");
   const { currentChat, setCurrentChat, service } = useAppStates();
+  const { replyMsg, setReplyMsg } = useChatBoxStates();
 
   const handleChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     setContent(event.target.value);
@@ -32,19 +35,22 @@ export default function ChatBoxFooter({
     let chatId = currentChat?.id;
 
     try {
-      const newMessage: Message = {
+      const newMessage: Omit<Message, "id"> = {
         content,
+        replyMsg: replyMsg,
         sender: currentUserEmail,
         readBy: [currentUserEmail],
         sentAt: new Date(),
       };
+
+      if (replyMsg) setReplyMsg(null);
 
       let createMsgCollection = false;
 
       if (!chatId) {
         if (!currentChat) return;
 
-        const newChatId = generateChatId(currentChat.members)
+        const newChatId = generateChatId(currentChat.members);
 
         const retrievedChat = await service.retrieveChat(newChatId);
 
@@ -93,27 +99,48 @@ export default function ChatBoxFooter({
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div className="bg-[#202C33] py-3 px-5 flex flex-row items-center gap-3 custom-scrollbar">
-        <TagFacesIcon sx={{ color: "#8696A0", fontSize: 30 }} />
-        <AddIcon sx={{ color: "#8696A0", fontSize: 30 }} />
-
-        <textarea
-          rows={1}
-          className="p-3 w-full text-white outline-none bg-[#2A3942] rounded-md resize-none overflow-hidden min-h-[36px] max-h-36 overflow-y-auto"
-          placeholder="Mensagem"
-          value={content}
-          onChange={handleChange}
-        />
-
-        {content ? (
-          <button type="submit">
-            <SendIcon sx={{ color: "#8696A0", fontSize: 30 }} />
+    <div className="flex flex-col bg-[#202C33] py-3 px-5 gap-2">
+      {replyMsg && (
+        <RepliedMsgContainer
+          msg={replyMsg}
+          deleteFn={() => {
+            setReplyMsg(null);
+          }}
+        ></RepliedMsgContainer>
+      )}
+      <form onSubmit={handleSubmit}>
+        <div className=" flex flex-row items-center gap-3 custom-scrollbar">
+          <button onClick={() => alert("Não funcional")}>
+            <TagFacesIcon sx={{ color: "#8696A0", fontSize: 30 }} />
           </button>
-        ) : (
-          <MicIcon sx={{ color: "#8696A0", fontSize: 30 }} />
-        )}
-      </div>
-    </form>
+          <button onClick={() => alert("Não funcional")}>
+            <AddIcon sx={{ color: "#8696A0", fontSize: 30 }} />
+          </button>
+
+          <textarea
+            rows={1}
+            className="p-3 w-full text-white outline-none bg-[#2A3942] rounded-md resize-none overflow-hidden min-h-[36px] max-h-36 overflow-y-auto"
+            placeholder="Mensagem"
+            value={content}
+            onChange={handleChange}
+          />
+
+          {content ? (
+            <button type="submit">
+              <SendIcon sx={{ color: "#8696A0", fontSize: 30 }} />
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() =>
+                alert("Não é possivel mandar audio... 😥 (ainda 😎)")
+              }
+            >
+              <MicIcon sx={{ color: "#8696A0", fontSize: 30 }} />
+            </button>
+          )}
+        </div>
+      </form>
+    </div>
   );
 }

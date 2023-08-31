@@ -1,10 +1,12 @@
+import { ReplyMsgType } from "@/contexts/chatBoxCtx";
+
 export type Chat = {
   id?: string;
   createdAt: Date;
   createdBy: string;
   members: string[];
   name: string | null;
-  recentMessage?: Message;
+  recentMessage?: Omit<Message, "id">;
   type: ChatType;
   admList: string[];
 };
@@ -12,6 +14,8 @@ export type Chat = {
 export type ChatType = 1 | 2;
 
 export type Message = {
+  id: string;
+  replyMsg: ReplyMsgType | null;
   sender: string | string;
   content: string;
   sentAt: Date;

@@ -32,6 +32,7 @@ export default function NewPrivateChat() {
       currentUser.email,
       userObj.email,
     ];
+
     const chat: Chat = {
       createdAt: new Date(),
       createdBy: currentUser.email,
@@ -40,6 +41,7 @@ export default function NewPrivateChat() {
       type: 1,
       admList: userEmails,
     };
+    
     setCurrentChat(chat);
     close();
   };

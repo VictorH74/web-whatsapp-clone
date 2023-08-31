@@ -34,14 +34,6 @@ export default function ChatListItem({ data, isLastItem }: Props) {
 
     const userId = data.members.filter((id) => id !== currentUser.email)[0];
 
-    // if (userId in users) {
-    //   const user = users[userId];
-    //   console.log("ChatListItem", user)
-    //   setChatPhoto(user.photoURL);
-    //   setChatTitle(user.displayName);
-    //   return;
-    // }
-
     const user = await service.retrieveUser(userId);
 
     setChatPhoto(user?.photoURL);

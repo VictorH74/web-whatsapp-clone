@@ -14,7 +14,7 @@ export default interface Api {
 
   createMessage(
     chatId: string,
-    data: Message,
+    data: Omit<Message, "id">,
     createFirebaseCollection?: boolean
   ): void;
 

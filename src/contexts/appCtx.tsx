@@ -29,7 +29,7 @@ interface AppStatesProviderI {
   headerData: HeaderDataType;
   setHeaderData: (data: HeaderDataType | null) => void;
   service: ChatService;
-  updateUserObj: (userId: string, data: Partial<User>) => void
+  updateUserObj: (userId: string, data: Partial<User>) => void;
 }
 
 const service = new ChatService(new FirebaseApi());
@@ -43,7 +43,7 @@ export const AppStatesCtx = createContext<AppStatesProviderI>({
   headerData: null,
   setHeaderData: () => null,
   service: service,
-  updateUserObj: () => null
+  updateUserObj: () => null,
 });
 
 export default function AppStatesProvider({
@@ -117,8 +117,6 @@ export default function AppStatesProvider({
         },
         true
       );
-
-      console.log("beforeunload", "called");
     };
     window.addEventListener("beforeunload", handleBeforeUnload);
 
@@ -162,7 +160,7 @@ export default function AppStatesProvider({
         headerData,
         setHeaderData,
         service,
-        updateUserObj
+        updateUserObj,
       }}
     >
       {children}

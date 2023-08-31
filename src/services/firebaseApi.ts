@@ -43,7 +43,7 @@ export default class FirebaseApi implements Api {
   // Message-------
   async createMessage(
     chatId: string,
-    data: Message,
+    data: Omit<Message, "id">,
     createFirebaseCollection?: boolean
   ): Promise<void> {
     if (createFirebaseCollection) {

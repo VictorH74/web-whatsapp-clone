@@ -13,7 +13,7 @@ interface Props {
   heading?: string;
   subHeading?: string;
   imgSrc?: string;
-  menuItems?: MenuItemProps[];
+  menuItems?: Array<MenuItemProps | undefined>;
 }
 
 type MenuItemProps = {
@@ -90,17 +90,20 @@ const Header = ({
                 horizontal: "right",
               }}
             >
-              {menuItems.map((item, i) => (
-                <MenuItem
-                  key={i}
-                  onClick={() => {
-                    item.onClick();
-                    handleClose();
-                  }}
-                >
-                  {item.title}
-                </MenuItem>
-              ))}
+              {menuItems.map((item, i) => {
+                if (item)
+                  return (
+                    <MenuItem
+                      key={i}
+                      onClick={() => {
+                        item.onClick();
+                        handleClose();
+                      }}
+                    >
+                      {item.title}
+                    </MenuItem>
+                  );
+              })}
             </Menu>
           </>
         )}

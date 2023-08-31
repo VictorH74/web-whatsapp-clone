@@ -25,7 +25,9 @@ export default React.memo(function ChatBox() {
   const [currentChatId, setCurrentChatId] = React.useState<
     string | undefined
   >();
+
   const { currentUser } = getAuth();
+  
   const { users, currentChat, setCurrentChat, service, updateUserObj } =
     useAppStates();
   const ref = React.useRef<HTMLDivElement>(null);
@@ -144,9 +146,9 @@ export default React.memo(function ChatBox() {
     );
 
     const unsubscribeMessages = fb.onSnapshot(q, (querySnapshot) => {
-      const messageDatas: any[] = [];
+      const messageDatas: Message[] = [];
       querySnapshot.forEach((doc) => {
-        messageDatas.push({ id: doc.id, ...doc.data() });
+        messageDatas.push({ id: doc.id, ...doc.data() } as Message);
       });
       setMessages(() => messageDatas);
       if (currentChat.type === 1) {
@@ -222,11 +224,19 @@ export default React.memo(function ChatBox() {
         menuItems={
           currentChat.type === 2
             ? [
+                currentChat.admList.includes(currentUser?.email || "")
+                  ? {
+                      onClick() {
+                        deleteChat();
+                      },
+                      title: "Deletar Grupo",
+                    }
+                  : undefined,
                 {
                   onClick() {
-                    deleteChat();
+                    setCurrentChat(null);
                   },
-                  title: "Deletar Grupo",
+                  title: "Fechar Conversa",
                 },
               ]
             : [
