@@ -1,45 +1,28 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { ChatType, Message } from "@/types/chat";
 import MessageContainer from "./MessageContainer";
-import {
-  ForwardedRef,
-  forwardRef,
-  useLayoutEffect,
-  useState,
-} from "react";
+import React from "react";
 import useAppStates from "@/hooks/useAppStates";
+import { colors } from "@/utils/constants";
 
 interface Props {
   messages: Message[];
   type: ChatType;
+  scrollToMsg: (msgId: string) => void;
 }
 
+type RefType = React.ForwardedRef<HTMLDivElement>;
 type ColorIndexesType = Record<string, number>;
 
-export const colors: string[] = [
-  "#b6b6b6",
-  "#43da7d",
-  "#e0554b",
-  "#9c71e2",
-  "#e04bd8",
-  "#b66a3e",
-  "#43cf5b",
-  "#db4242",
-  "#329497",
-  "#477cdf",
-  "#dee03e",
-  "#866feb",
-];
-
-export default forwardRef(function ChatBoxBody(
-  { messages, type }: Props,
-  ref: ForwardedRef<HTMLDivElement>
+export default React.forwardRef(function ChatBoxBody(
+  props: Props,
+  ref: RefType
 ) {
-  const [colorIndexes, setColorsIndexes] = useState<ColorIndexesType>({});
+  const [colorIndexes, setColorsIndexes] = React.useState<ColorIndexesType>({});
   const { currentChat } = useAppStates();
 
-  useLayoutEffect(() => {
+  React.useLayoutEffect(() => {
     if (currentChat === null) return;
-
     if (!currentChat.id || currentChat.type !== 2) return;
 
     const discoveredColors = localStorage.getItem(currentChat.id);
@@ -56,21 +39,23 @@ export default forwardRef(function ChatBoxBody(
       }),
       {}
     );
+
     localStorage.setItem(currentChat.id, JSON.stringify(groupColorIndexes));
     setColorsIndexes(groupColorIndexes);
   }, []);
 
   return (
-    <div className="flex flex-col grow justify-end text-white overflow-y-auto overflow-x-hidden custom-scrollbar">
+    <div className="flex flex-col w-full max-w-6xl mx-auto grow justify-end text-white overflow-y-auto overflow-x-hidden custom-scrollbar">
       <div
-        className="flex flex-col gap-3 p-4 h-auto pt-52 overflow-x-hidden"
+        className="flex flex-col relative h-auto scroll-smooth pt-40 overflow-x-hidden"
         ref={ref}
       >
-        {messages.map((m) => (
+        {props.messages.map((m) => (
           <MessageContainer
             key={m.sentAt.toString()}
             message={m}
-            type={type}
+            type={props.type}
+            scrollToMsg={props.scrollToMsg}
             senderNameColor={colors[colorIndexes[m.sender] || 0]}
           />
         ))}

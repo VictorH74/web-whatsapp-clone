@@ -14,32 +14,49 @@ interface Props {
   scrollToBottom: () => void;
 }
 
-export default function ChatBoxFooter({
-  currentUserEmail,
-  scrollToBottom,
-}: Props) {
+export default function ChatBoxFooter(props: Props) {
   const [content, setContent] = React.useState("");
   const { currentChat, setCurrentChat, service } = useAppStates();
   const { replyMsg, setReplyMsg } = useChatBoxStates();
 
-  const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setContent(event.target.value);
-    event.target.style.height = "auto";
-    event.target.style.height = `${event.target.scrollHeight}px`;
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit();
+      return;
+    }
+
+    if (e.key === "Enter" && e.shiftKey) {
+      e.preventDefault();
+      setContent((prevText) => {
+        return prevText + "\n";
+      });
+      const height = e.currentTarget.scrollHeight;
+      e.currentTarget.style.height = `${height + 24}px`;
+      return;
+    }
   };
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const { value } = e.target;
+
+    setContent(value);
+    e.target.style.height = "auto";
+    e.target.style.height = `${e.target.scrollHeight}px`;
+  };
+
+  const handleSubmit = async (event?: React.FormEvent) => {
+    event?.preventDefault();
     setContent(() => "");
 
     let chatId = currentChat?.id;
 
     try {
       const newMessage: Omit<Message, "id"> = {
-        content,
+        content: content.split("\n").join("<br>"),
         replyMsg: replyMsg,
-        sender: currentUserEmail,
-        readBy: [currentUserEmail],
+        sender: props.currentUserEmail,
+        readBy: [props.currentUserEmail],
         sentAt: new Date(),
       };
 
@@ -49,7 +66,6 @@ export default function ChatBoxFooter({
 
       if (!chatId) {
         if (!currentChat) return;
-
         const newChatId = generateChatId(currentChat.members);
 
         const retrievedChat = await service.retrieveChat(newChatId);
@@ -60,12 +76,9 @@ export default function ChatBoxFooter({
           if (!retrievedChat.id) return;
 
           await service.createMessage(retrievedChat.id, newMessage, true);
-
           await service.updateChat(
             retrievedChat.id,
-            {
-              recentMessage: newMessage,
-            },
+            { recentMessage: newMessage },
             true
           );
 
@@ -77,21 +90,13 @@ export default function ChatBoxFooter({
         const newChat: Chat = { id: newChatId, ...currentChat } as Chat;
         setCurrentChat(newChat);
         chatId = newChatId;
-
         createMsgCollection = true;
       }
 
       await service.createMessage(chatId, newMessage, createMsgCollection);
+      await service.updateChat(chatId, { recentMessage: newMessage }, true);
 
-      await service.updateChat(
-        chatId,
-        {
-          recentMessage: newMessage,
-        },
-        true
-      );
-
-      scrollToBottom();
+      props.scrollToBottom();
     } catch (e) {
       alert("Error:");
       console.log(e);
@@ -123,6 +128,7 @@ export default function ChatBoxFooter({
             placeholder="Mensagem"
             value={content}
             onChange={handleChange}
+            onKeyDown={handleKeyDown}
           />
 
           {content ? (

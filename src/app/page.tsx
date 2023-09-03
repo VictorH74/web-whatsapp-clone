@@ -1,8 +1,8 @@
 "use client";
 
 import ChatBox from "@/components/ChatBox";
-import Loading from "@/components/Loading";
-import Providers from "@/components/Providers";
+import Loading from "@/components/global/Loading";
+import Providers from "@/components/global/Providers";
 import Aside from "@/components/Aside";
 import useAppStates from "@/hooks/useAppStates";
 import ChatBoxStatesProvider from "@/contexts/chatBoxCtx";

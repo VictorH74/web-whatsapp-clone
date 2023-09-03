@@ -2,17 +2,18 @@ import React from "react";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import UserListItem from "./UserListItem";
 import { getAuth } from "firebase/auth";
-import Loading from "./Loading";
+import Loading from "@/components/global/Loading";
 import { User } from "@/types/user";
 import { Chat, Message } from "@/types/chat";
 import NewChatContainer from "./NewChatContainer";
 import useFetchUsers from "@/hooks/useFetchUsers";
 import SearchUserInput from "./SearchUserInput";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import { GroupIconIcon } from "./IconPresets";
+import { GroupIconIcon } from "@/components/global/IconPresets";
 import CheckIcon from "@mui/icons-material/Check";
 import useAppStates from "@/hooks/useAppStates";
 import useAsideState from "@/hooks/useAsideState";
+import { undefinedUserEmailError } from "@/utils/constants";
 
 export default React.memo(function NewGroupChat() {
   const [submiting, setSubmiting] = React.useState(false);
@@ -27,9 +28,11 @@ export default React.memo(function NewGroupChat() {
     emailValue,
     currentUser?.email || ""
   );
+
   const handleItemClick = (userObj: User, selected?: boolean) => {
     if (selected) {
       setSelectedUsers((prev) => prev.filter((u) => u.email !== userObj.email));
+      return;
     }
     setSelectedUsers((prev) => [...prev, userObj]);
   };
@@ -38,14 +41,9 @@ export default React.memo(function NewGroupChat() {
     e.preventDefault();
     setSubmiting(true);
 
-    if (!currentUser?.email) {
-      alert("Email não encontrado");
-      return;
-    }
-    if (!currentUser?.displayName) {
-      alert("Nome do usuário não encontrado");
-      return;
-    }
+    if (!currentUser?.email) alert("Email não encontrado");
+    if (!currentUser?.displayName) alert("Nome do usuário não encontrado");
+    if (!currentUser?.email || !currentUser?.displayName) return;
 
     let usersEmail: string[] = [
       currentUser.email,
@@ -53,7 +51,6 @@ export default React.memo(function NewGroupChat() {
     ];
 
     const owner = currentUser?.email;
-
     const newChat: Chat = {
       members: usersEmail,
       admList: [owner],
@@ -62,9 +59,6 @@ export default React.memo(function NewGroupChat() {
       name: groupName,
       createdAt: new Date(),
     };
-
-    const createdChat = await service.createChat(newChat);
-
     const newMessage: Omit<Message, "id"> = {
       content: `Nova conversa criada por ${currentUser?.displayName}`,
       sender: "system",
@@ -72,6 +66,8 @@ export default React.memo(function NewGroupChat() {
       replyMsg: null,
       sentAt: new Date(),
     };
+    
+    const createdChat = await service.createChat(newChat);
 
     if (!createdChat.id) {
       console.error();
@@ -79,9 +75,7 @@ export default React.memo(function NewGroupChat() {
     }
 
     await service.createMessage(createdChat.id, newMessage, true);
-
     setCurrentChat({ id: createdChat.id, ...newChat });
-
     close();
   };
 

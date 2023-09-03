@@ -2,7 +2,7 @@ import { User } from "@/types/user";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import Image from "next/image";
 import React from "react";
-import { EmptyUserImgIcon } from "./IconPresets";
+import { EmptyUserImgIcon } from "@/components/global/IconPresets";
 
 interface Props {
   user: User;
@@ -11,12 +11,7 @@ interface Props {
   onClick: (userObj: User, selected?: boolean) => void;
 }
 
-export default function UserListItem({
-  user,
-  isLastItem,
-  selected,
-  onClick,
-}: Props) {
+export default function UserListItem(props: Props) {
   const ref = React.useRef<HTMLDivElement>(null);
   const [left, setLeft] = React.useState(0);
 
@@ -27,7 +22,7 @@ export default function UserListItem({
   }, [ref]);
 
   const handleClick = () => {
-    onClick(user, selected);
+    props.onClick(props.user, props.selected);
   };
 
   return (
@@ -39,22 +34,22 @@ export default function UserListItem({
       flex-row 
       items-center 
       hover:bg-[#202C33] 
-      ${selected && "bg-[#2A3942] "} 
+      ${props.selected && "bg-[#2A3942] "} 
       hover:cursor-pointer  
       `}
       onClick={handleClick}
     >
-      {selected && (
+      {props.selected && (
         <CheckCircleIcon
           sx={{ color: "#00A884", fontSize: "30px" }}
           className="absolute right-2"
         />
       )}
-      {user.photoURL ? (
+      {props.user.photoURL ? (
         <Image
           className="rounded-full"
           alt="account-image"
-          src={user.photoURL}
+          src={props.user.photoURL}
           width={50}
           height={50}
         />
@@ -64,10 +59,10 @@ export default function UserListItem({
 
       <div className={`ml-2 w-full p-2`}>
         <h2 ref={ref} className="text-white">
-          {user.displayName}
+          {props.user.displayName}
         </h2>
-        <p className={`text-gray-300 text-sm`}>{user.email}</p>
-        {!isLastItem && (
+        <p className={`text-gray-300 text-sm`}>{props.user.email}</p>
+        {!props.isLastItem && (
           <div
             className="absolute bg-[#202C33] h-[1px] bottom-0"
             style={{ right: 0, left: `${left}px` }}

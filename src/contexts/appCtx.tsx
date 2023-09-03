@@ -1,14 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import { db } from "@/services/firebase";
-import {
-  ReactNode,
-  createContext,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React from "react";
 import * as fs from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { getAuth } from "firebase/auth";
@@ -16,6 +9,7 @@ import { Chat } from "@/types/chat";
 import ChatService from "@/services/chat";
 import FirebaseApi from "@/services/firebaseApi";
 import { User } from "@/types/user";
+import { undefinedUserEmailError } from "@/utils/constants";
 
 type HeaderDataType = [fs.DocumentReference, fs.DocumentReference] | null;
 type UsersObjType = Record<string, User>;
@@ -34,33 +28,35 @@ interface AppStatesProviderI {
 
 const service = new ChatService(new FirebaseApi());
 
-export const AppStatesCtx = createContext<AppStatesProviderI>({
+const initialStates = {
   chats: [],
   users: {},
   currentChat: null,
-  isLoading: true,
-  setCurrentChat: () => null,
   headerData: null,
+  isLoading: true,
+  service,
+  setCurrentChat: () => null,
   setHeaderData: () => null,
-  service: service,
   updateUserObj: () => null,
-});
+};
+
+export const AppStatesCtx =
+  React.createContext<AppStatesProviderI>(initialStates);
 
 export default function AppStatesProvider({
   children,
 }: {
-  children: ReactNode;
+  children: React.ReactNode;
 }) {
-  const [chats, setChats] = useState<Chat[]>([]);
-  const [users, setUsers] = useState<UsersObjType>({});
-  const [currentChat, setCurrentChatState] = useState<Chat | null>(null);
-  const [headerData, setHeaderDataState] = useState<HeaderDataType | null>(
-    null
-  );
-  const [isLoading, setIsLoading] = useState(true);
+  const [chats, setChats] = React.useState<Chat[]>([]);
+  const [users, setUsers] = React.useState<UsersObjType>({});
+  const [currentChat, setCurrentChatState] = React.useState<Chat | null>(null);
+  const [headerData, setHeaderDataState] =
+    React.useState<HeaderDataType | null>(null);
+  const [isLoading, setIsLoading] = React.useState(true);
   const router = useRouter();
   const auth = getAuth();
-  const userEmails = useMemo<string[]>(() => {
+  const userEmails = React.useMemo<string[]>(() => {
     let emails: string[] = [];
     chats.forEach((c) => {
       emails.push(...c.members);
@@ -68,35 +64,11 @@ export default function AppStatesProvider({
     return emails;
   }, [chats]);
 
-  const updateUserObj = (userId: string, data: Partial<User>) => {
-    setUsers((prev) => ({ ...prev, [userId]: { ...prev[userId], ...data } }));
-  };
-
-  const retrieveUsers = useCallback(async (emails: string[]) => {
-    if (emails.length === 0) return;
-    const users = await service.getUsersByEmailList(emails);
-
-    setUsers(
-      users.reduce(
-        (obj, user) => ({ ...obj, [user.email]: user }),
-        {}
-      ) as UsersObjType
-    );
-  }, []);
-
-  const setCurrentChat = (chat: Chat | null) => {
-    setCurrentChatState(() => chat);
-  };
-
-  const setHeaderData = (data: HeaderDataType | null) => {
-    setHeaderDataState(() => data);
-  };
-
-  useEffect(() => {
+  React.useEffect(() => {
     retrieveUsers(userEmails);
   }, [userEmails]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (auth.currentUser === null) {
       router.push("/login");
       return;
@@ -104,20 +76,21 @@ export default function AppStatesProvider({
 
     let { displayName, email, photoURL } = auth.currentUser;
 
-    if (!email) return console.error("Email must not be null");
+    if (!email) return undefinedUserEmailError();
 
     const handleBeforeUnload = () => {
       if (!email) return;
 
       service.createOrUpdateUser(
         {
-          email: email,
+          email,
           online: false,
           lastTimeOnline: new Date(),
         },
         true
       );
     };
+
     window.addEventListener("beforeunload", handleBeforeUnload);
 
     service.createOrUpdateUser({
@@ -148,6 +121,30 @@ export default function AppStatesProvider({
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, [auth, router]);
+
+  const updateUserObj = (userId: string, data: Partial<User>) => {
+    setUsers((prev) => ({ ...prev, [userId]: { ...prev[userId], ...data } }));
+  };
+
+  const retrieveUsers = React.useCallback(async (emails: string[]) => {
+    if (emails.length === 0) return;
+    const users = await service.getUsersByEmailList(emails);
+
+    setUsers(
+      users.reduce(
+        (obj, user) => ({ ...obj, [user.email]: user }),
+        {}
+      ) as UsersObjType
+    );
+  }, []);
+
+  const setCurrentChat = (chat: Chat | null) => {
+    setCurrentChatState(() => chat);
+  };
+
+  const setHeaderData = (data: HeaderDataType | null) => {
+    setHeaderDataState(() => data);
+  };
 
   return (
     <AppStatesCtx.Provider

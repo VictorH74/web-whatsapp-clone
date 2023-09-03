@@ -11,9 +11,9 @@ interface Props {
   onClick: () => void;
 }
 
-export default function ListItemContainer({ user, last, selected, onClick }: Props) {
-  const ref = React.useRef<HTMLDivElement>(null);
+export default function ListItemContainer(props: Props) {
   const [left, setLeft] = React.useState(0);
+  const ref = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     let left = ref.current?.offsetLeft;
@@ -30,22 +30,22 @@ export default function ListItemContainer({ user, last, selected, onClick }: Pro
       flex-row 
       items-center 
       hover:bg-[#202C33] 
-      ${selected && "bg-[#2A3942] "} 
+      ${props.selected && "bg-[#2A3942] "} 
       hover:cursor-pointer  
       `}
-      onClick={onClick}
+      onClick={props.onClick}
     >
-      {selected && (
+      {props.selected && (
         <CheckCircleIcon
           sx={{ color: "#00A884", fontSize: "30px" }}
           className="absolute right-2"
         />
       )}
-      {user.photoURL ? (
+      {props.user.photoURL ? (
         <Image
           className="rounded-full"
           alt="account-image"
-          src={user.photoURL}
+          src={props.user.photoURL}
           width={50}
           height={50}
         />
@@ -55,10 +55,10 @@ export default function ListItemContainer({ user, last, selected, onClick }: Pro
 
       <div className={`ml-2 w-full p-2`}>
         <h2 ref={ref} className="text-white">
-          {user.displayName}
+          {props.user.displayName}
         </h2>
-        <p className={`text-gray-300 text-sm`}>{user.email}</p>
-        {!last && (
+        <p className={`text-gray-300 text-sm`}>{props.user.email}</p>
+        {!props.last && (
           <div
             className="absolute bg-[#202C33] h-[1px] bottom-0"
             style={{ right: 0, left: `${left}px` }}

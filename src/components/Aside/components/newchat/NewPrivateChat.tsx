@@ -1,16 +1,17 @@
 import React from "react";
 import UserListItem from "./UserListItem";
 import { getAuth } from "firebase/auth";
-import Loading from "./Loading";
+import Loading from "@/components/global/Loading";
 import { User } from "@/types/user";
 import NewChatContainer from "./NewChatContainer";
 
-import { ComunityIcon, GroupIconIcon } from "./IconPresets";
+import { ComunityIcon, GroupIconIcon } from "@/components/global/IconPresets";
 import useAppStates from "@/hooks/useAppStates";
 import { Chat } from "@/types/chat";
 import useFetchUsers from "@/hooks/useFetchUsers";
 import SearchUserInput from "./SearchUserInput";
 import useAsideState from "@/hooks/useAsideState";
+import { undefinedUserEmailError } from "@/utils/constants";
 
 export default function NewPrivateChat() {
   const [emailValue, setEmailValue] = React.useState("");
@@ -28,7 +29,7 @@ export default function NewPrivateChat() {
       return;
     }
 
-    let userEmails: string[] = [
+    const userEmails: string[] = [
       currentUser.email,
       userObj.email,
     ];

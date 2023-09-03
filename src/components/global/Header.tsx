@@ -21,14 +21,7 @@ type MenuItemProps = {
   onClick(): void;
 };
 
-const Header = ({
-  actions,
-  heading,
-  imgSrc,
-  menuItems,
-  type = 0,
-  subHeading,
-}: Props) => {
+const Header = (props: Props) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -41,15 +34,15 @@ const Header = ({
   return (
     <div className="w-full max-h-16 bg-[#222E35] flex flex-row items-center py-3 px-4 justify-between text-white">
       <div className="flex items-center gap-2 ">
-        {type === 2 ? (
+        {props.type === 2 ? (
           <div className="m-[3px] grid place-items-center bg-white w-[39px] h-[39px] rounded-full">
             <GroupsIcon sx={{ color: "black", fontSize: 20 }} />
           </div>
-        ) : imgSrc ? (
+        ) : props.imgSrc ? (
           <Image
             className="rounded-full"
             alt="account-image"
-            src={imgSrc}
+            src={props.imgSrc}
             width={40}
             height={40}
           />
@@ -58,13 +51,15 @@ const Header = ({
         )}
 
         <div className="flex flex-col w-auto">
-          <p className="text-sm">{heading ?? heading}</p>
-          <p className="text-xs truncate">{subHeading ?? subHeading}</p>
+          <p className="text-sm">{props.heading ?? props.heading}</p>
+          <p className="text-xs truncate">
+            {props.subHeading ?? props.subHeading}
+          </p>
         </div>
       </div>
       <div className="flex flex-row gap-7 justify-evenly">
-        {actions}
-        {menuItems && menuItems.length > 0 && (
+        {props.actions}
+        {props.menuItems && props.menuItems.length > 0 && (
           <>
             <button
               id="demo-positioned-button"
@@ -88,9 +83,9 @@ const Header = ({
                 horizontal: "right",
               }}
             >
-              {menuItems.map((item, i) => {
-                if (item)
-                  return (
+              {props.menuItems.map(
+                (item, i) =>
+                  item && (
                     <MenuItem
                       key={i}
                       onClick={() => {
@@ -100,8 +95,8 @@ const Header = ({
                     >
                       {item.title}
                     </MenuItem>
-                  );
-              })}
+                  )
+              )}
             </Menu>
           </>
         )}

@@ -4,7 +4,10 @@ import { Chat } from "@/types/chat";
 import { getAuth } from "firebase/auth";
 import Image from "next/image";
 import React from "react";
-import { EmptyUserImgIcon, GroupIconIcon } from "./IconPresets";
+import {
+  EmptyUserImgIcon,
+  GroupIconIcon,
+} from "@/components/global/IconPresets";
 import { formatNumber, getDate } from "@/utils/functions";
 
 interface Props {
@@ -15,9 +18,9 @@ interface Props {
 export default function ChatListItem({ data, isLastItem }: Props) {
   const [chatPhoto, setChatPhoto] = React.useState<string | undefined>();
   const [chatTitle, setChatTitle] = React.useState<string | null>(data.name);
+  const [left, setLeft] = React.useState(0);
   const ref = React.useRef<HTMLDivElement>(null);
   const { setCurrentChat, service, users } = useAppStates();
-  const [left, setLeft] = React.useState(0);
 
   React.useEffect(() => {
     let left = ref.current?.offsetLeft;
@@ -29,9 +32,7 @@ export default function ChatListItem({ data, isLastItem }: Props) {
 
   const fetchUser = React.cache(async () => {
     const { currentUser } = getAuth();
-
     if (!currentUser?.email) return;
-
     const userId = data.members.filter((id) => id !== currentUser.email)[0];
 
     const user = await service.retrieveUser(userId);
@@ -80,7 +81,7 @@ export default function ChatListItem({ data, isLastItem }: Props) {
           }`}
         >
           <p className="truncate grow w-32">
-            {data?.recentMessage?.content || "-"}
+            {data?.recentMessage?.content.replace(/<br>/g, " ") || "-"}
           </p>
 
           <p className="mx-2">{`${formatNumber(date.hour)}:${formatNumber(

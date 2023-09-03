@@ -1,20 +1,20 @@
-import ChatList from "./ChatList";
-import Header from "./Header";
-import NewGroupChat from "./NewGroupChat";
+import ChatList from "./components/ChatList";
+import Header from "../global/Header";
+import NewGroupChat from "./components/newchat/NewGroupChat";
 import ChatIcon from "@mui/icons-material/Chat";
 import TrackChangesIcon from "@mui/icons-material/TrackChanges";
 import GroupsIcon from "@mui/icons-material/Groups";
 import { getAuth } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import NewPrivateChat from "./NewPrivateChat";
+import NewPrivateChat from "./components/newchat/NewPrivateChat";
 import useAsideState from "@/hooks/useAsideState";
 import useAppStates from "@/hooks/useAppStates";
 
 export default function Aside() {
-  const auth = getAuth();
-  const router = useRouter();
   const { setAsideContentNumber } = useAsideState();
   const { service } = useAppStates();
+  const router = useRouter();
+  const auth = getAuth();
 
   return (
     <aside className="relative border-r-[1px] border-r-zinc-700 min-w-[340px] w-[620px] max-h-screen bg-[#111B21] flex flex-col custom-scrollbar">
