@@ -44,7 +44,7 @@ export default React.memo(function ChatBox() {
     }
 
     if (!chatId) {
-      fechChat(currentChat.members, () => {
+      fetchChat(currentChat.members, () => {
         setMessages([]);
         unSubscribeUser = fetchUser(currentChat.members, currentChat.type);
         return;
@@ -150,14 +150,14 @@ export default React.memo(function ChatBox() {
             ? `visto por ultimo ontem às ${hour}:${minutes}`
             : sameDay && sameMounth && sameYear
             ? `visto por ultimo hoje às ${hour}:${minutes}`
-            : `visto por ultimo hoje em ${dayF}/${monthF}/${yearF}`;
+            : `visto por ultimo em ${dayF}/${monthF}/${yearF}`;
         }
         setHeaderSubHeading(subHeading);
       }
     });
   });
 
-  const fechChat = async (members: string[], onChatNotExist: () => void) => {
+  const fetchChat = async (members: string[], onChatNotExist: () => void) => {
     const retrievedChat = await service.retrieveChat(generateChatId(members));
     if (retrievedChat) setCurrentChat(retrievedChat);
     else onChatNotExist();
@@ -171,15 +171,25 @@ export default React.memo(function ChatBox() {
     // possible only with firebase cloud functions :(
   }, [currentChat]);
 
-  const scrollToMsg = React.useCallback((msgId: string) => {
+  const scrollToMsg = React.useCallback((msgId: string, groupId?: string) => {
     if (ref.current) {
       const msgRef = document.getElementById(msgId);
-      console.log(msgRef);
       if (msgRef === null) return;
+
+      const chatBoxBodyH = ref.current.offsetHeight;
+      const MessageContainerH = msgRef.offsetHeight;
+      const msgTop = msgRef.offsetTop;
+      const scrollTop = chatBoxBodyH / 2 - MessageContainerH / 2;
+
       ref.current.scrollTo({
-        top: msgRef.offsetTop - 6,
+        top: msgTop - scrollTop >= 0 ? msgTop - scrollTop : 0,
         behavior: "smooth",
       });
+
+      msgRef.classList.add("animate-blink");
+      setTimeout(() => {
+        msgRef.classList.remove("animate-blink");
+      }, 2000);
     }
   }, []);
 

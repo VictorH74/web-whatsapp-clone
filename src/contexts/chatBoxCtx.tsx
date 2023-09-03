@@ -4,6 +4,7 @@ export type ReplyMsgType = {
   id: string;
   sender: string;
   content: string;
+  group?: { name: string; id: string };
 };
 
 interface Props {

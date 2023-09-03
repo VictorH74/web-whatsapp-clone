@@ -37,7 +37,13 @@ body {
   }
 }
 
-.header-actions button {
+.test {
+  animation-name: fadeOut;
+  animation-duration: 500ms;
+  animation-timing-function: ease-in;
+  animation-fill-mode: forwards;
+  animation-direction: alternate;
+
 }
 
 .fade-out {

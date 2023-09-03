@@ -87,12 +87,23 @@ export default function RepliedMsgContainer(props: Props) {
           className={`w-1 h-full`}
         />
         <div className="grow py-1 px-2">
-          <p style={{ color: colors[colorIndex] }} className={`text-sm mb-1`}>
-            {sender ? sender : "carregando..."}
-          </p>
-          <p className="text-xs max-w-md h-auto break-words">
-            {formattedText}
-          </p>
+          <div
+            className="flex flex-row text-sm mb-1 gap-1 items-center"
+            style={{ color: colors[colorIndex] }}
+          >
+            <p>{sender ? sender : "carregando..."}</p>
+            {props.msg.group && (
+              <>
+                <div
+                  className="w-1 h-1 rounded-full"
+                  style={{ backgroundColor: colors[colorIndex] }}
+                />
+                <p>{props.msg.group.name}</p>
+              </>
+            )}
+          </div>
+
+          <p className="text-xs max-w-md h-auto break-words">{formattedText}</p>
         </div>
       </div>
 

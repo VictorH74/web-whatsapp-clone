@@ -8,7 +8,7 @@ import { colors } from "@/utils/constants";
 interface Props {
   messages: Message[];
   type: ChatType;
-  scrollToMsg: (msgId: string) => void;
+  scrollToMsg: (msgId: string, groupId?: string) => void;
 }
 
 type RefType = React.ForwardedRef<HTMLDivElement>;
@@ -47,16 +47,17 @@ export default React.forwardRef(function ChatBoxBody(
   return (
     <div className="flex flex-col w-full max-w-6xl mx-auto grow justify-end text-white overflow-y-auto overflow-x-hidden custom-scrollbar">
       <div
-        className="flex flex-col relative h-auto scroll-smooth pt-40 overflow-x-hidden"
+        className="grid gap-1 px-10 pb-4 relative h-auto scroll-smooth pt-40 overflow-x-hidden"
         ref={ref}
       >
-        {props.messages.map((m) => (
+        {props.messages.map((m, i) => (
           <MessageContainer
-            key={m.sentAt.toString()}
+            key={m.id}
             message={m}
             type={props.type}
             scrollToMsg={props.scrollToMsg}
             senderNameColor={colors[colorIndexes[m.sender] || 0]}
+            sameSender={i > 0 ? props.messages[i-1].sender === m.sender : false}
           />
         ))}
       </div>

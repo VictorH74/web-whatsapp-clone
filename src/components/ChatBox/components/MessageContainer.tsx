@@ -6,29 +6,28 @@ import { getAuth } from "firebase/auth";
 import React from "react";
 import useChatBoxStates from "@/hooks/useChatBoxStates";
 import RepliedMsgContainer from "./RepliedMsgContainer";
-import Link from "next/link";
 import MessageMenuBtn from "./MessageMenuBtn";
-
-type ReplyMsgType = {
-  id: string;
-  sender: string;
-  content: string;
-};
+import MessagePhoto from "./MessagePhoto";
+import { ReplyMsgType } from "@/contexts/chatBoxCtx";
 
 interface Props {
   message: Message;
   type: ChatType;
   senderNameColor: string;
-  scrollToMsg: (msgId: string) => void;
+  scrollToMsg: (msgId: string, groupId?: string) => void;
+  sameSender: boolean;
 }
 
 export default React.memo(function MessageContainer(props: Props) {
   const [sender, setSender] = React.useState<string | undefined>(undefined);
+  const [senderImgSrc, setSenderPhoto] = React.useState<string | undefined>(
+    undefined
+  );
   const [owner, setOwner] = React.useState<boolean>(false);
   const [mouseOver, setMouseOver] = React.useState(false);
   const [mouseLeave, setMouseLeave] = React.useState(false);
   const { currentUser } = getAuth();
-  const { users, service, setCurrentChat } = useAppStates();
+  const { users, service, setCurrentChat, currentChat } = useAppStates();
   const { setReplyMsg } = useChatBoxStates();
   // return focus to the button when we transitioned from !open -> open
 
@@ -58,10 +57,21 @@ export default React.memo(function MessageContainer(props: Props) {
   };
 
   const handleReplyOnPrivate = () => {
-    if (currentUser === null || !currentUser.email) return;
-
+    if (
+      currentUser === null ||
+      !currentUser.email ||
+      props.type !== 2 ||
+      !currentChat?.id
+    )
+      return;
+    const { id: chatId, name } = currentChat;
     const { id, sender, content } = props.message;
-    const msg: ReplyMsgType = { id, sender, content };
+    const msg: ReplyMsgType = {
+      id,
+      sender,
+      content,
+      group: { id: chatId, name: name || "Grupo sem nome" },
+    };
     const userEmails: string[] = [currentUser.email, sender];
     const chat: Chat = {
       createdAt: new Date(),
@@ -80,6 +90,7 @@ export default React.memo(function MessageContainer(props: Props) {
     if (senderId in users) {
       const user = users[senderId];
       setSender(user?.displayName);
+      setSenderPhoto(user.photoURL);
       return;
     }
     const user = await service.retrieveUser(senderId);
@@ -103,71 +114,71 @@ export default React.memo(function MessageContainer(props: Props) {
     if (index === parts.length - 1) {
       return part;
     } else {
-      return (
-        <>
-          {part}
-          <br />
-        </>
-      );
+      return <p key={part}>{part}</p>;
     }
   });
 
   return (
-    <div className={`px-4 my-1 grid`}>
-      <div
-        onMouseOver={handleMouseOver}
-        onMouseLeave={handleMouseLeave}
-        className={`bg-[#005C4B] text-sm font-normal relative p-2 rounded-md  max-w-lg h-auto ${
-          owner
-            ? "rounded-tr-none place-self-end"
-            : props.message.sender === "system"
-            ? "bg-gray-800 place-self-center"
-            : "bg-[#202C33] rounded-tl-none place-self-start"
-        }`}
-        key={props.message.id}
-        id={props.message.id}
-      >
-        <span id={props.message.id + "aaa"} className="absolute -top-2"></span>
-        {props.message.replyMsg && (
-          <button
-            className="w-full text-left hover:cursor-pointer"
-            onClick={
-              replyMsgId
-                ? () => {
-                    props.scrollToMsg(replyMsgId);
-                  }
-                : undefined
-            }
-          >
-            <RepliedMsgContainer msg={props.message.replyMsg} />
-          </button>
-        )}
+    <div
+      onMouseOver={handleMouseOver}
+      onMouseLeave={handleMouseLeave}
+      className={`bg-[#005C4B] text-sm font-normal relative p-2 rounded-md  max-w-lg h-auto ${
+        owner
+          ? "rounded-tr-none place-self-end"
+          : props.message.sender === "system"
+          ? "bg-gray-800 place-self-center"
+          : `bg-[#202C33] ${
+              !props.sameSender && "rounded-tl-none"
+            } place-self-start`
+      }`}
+      key={props.message.id}
+      id={props.message.id}
+    >
+      {props.message.sender !== "system" &&
+        props.type === 2 &&
+        !owner &&
+        !props.sameSender && <MessagePhoto imgSrc={senderImgSrc} />}
+
+      {props.message.replyMsg && (
+        <button
+          className="w-full text-left hover:cursor-pointer"
+          onClick={
+            replyMsgId
+              ? () => {
+                  props.scrollToMsg(replyMsgId);
+                }
+              : undefined
+          }
+        >
+          <RepliedMsgContainer msg={props.message.replyMsg} />
+        </button>
+      )}
+      {sender !== "system" && (
+        <MessageMenuBtn
+          owner={owner}
+          mouseOver={mouseOver}
+          mouseLeave={mouseLeave}
+          handleReply={handleReply}
+          handleReplyOnPrivate={
+            props.type === 2 ? handleReplyOnPrivate : undefined
+          }
+          onClose={() => setMouseOver(false)}
+        />
+      )}
+
+      {props.sameSender ||
+        (props.type === 2 && !owner && sender !== "system" && (
+          <p style={{ color: props.senderNameColor }}>{sender}</p>
+        ))}
+      <p className="break-words">
+        {formattedText}
+
         {sender !== "system" && (
-          <MessageMenuBtn
-            owner={owner}
-            mouseOver={mouseOver}
-            mouseLeave={mouseLeave}
-            handleReply={handleReply}
-            handleReplyOnPrivate={handleReplyOnPrivate}
-            onClose={() => setMouseOver(false)}
-          />
+          <span className="float-right translate-x-[2px] translate-y-[6px] ml-1 text-[11px] self-end w-min">{`${formatNumber(
+            date.hour
+          )}:${formatNumber(date.minute)}`}</span>
         )}
-
-        {props.type === 2 && !owner && sender !== "system" && (
-          <p className="" style={{ color: props.senderNameColor }}>
-            {sender}
-          </p>
-        )}
-        <p className="break-words">
-          {formattedText}
-
-          {sender !== "system" && (
-            <span className="float-right translate-x-[2px] translate-y-[6px] ml-1 text-[11px] self-end w-min">{`${formatNumber(
-              date.hour
-            )}:${formatNumber(date.minute)}`}</span>
-          )}
-        </p>
-      </div>
+      </p>
     </div>
   );
 });

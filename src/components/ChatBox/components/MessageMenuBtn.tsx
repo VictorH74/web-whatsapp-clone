@@ -13,7 +13,7 @@ interface Props {
   mouseOver: boolean;
   mouseLeave: boolean;
   handleReply: () => void;
-  handleReplyOnPrivate: () => void;
+  handleReplyOnPrivate?: () => void;
   onClose: () => void;
 }
 
@@ -108,9 +108,10 @@ export default function MessageMenuBtn(props: Props) {
                   >
                     Responder
                   </MenuItem>
-                  {!props.owner && (
+                  {!props.owner && props.handleReplyOnPrivate && (
                     <MenuItem
                       onClick={(e) => {
+                        if (!props.handleReplyOnPrivate) return;
                         props.handleReplyOnPrivate();
                         handleClose(e);
                       }}

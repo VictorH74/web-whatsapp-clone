@@ -3,7 +3,7 @@ import GroupIcon from "@mui/icons-material/Group";
 import GroupsIcon from "@mui/icons-material/Groups";
 import React from "react";
 
-const className = " rounded-full aspect-square grid place-items-center";
+const dfClassName = " rounded-full aspect-square grid place-items-center";
 const fontSize = 30;
 const SIZE = 55;
 const color = "#CFD4D6";
@@ -13,6 +13,7 @@ interface Props {
   bgColor?: string;
   size?: number;
   iconSize?: number;
+  clssName?: string;
 }
 
 export const EmptyUserImgIcon: React.FC<Props> = ({
@@ -22,7 +23,7 @@ export const EmptyUserImgIcon: React.FC<Props> = ({
   <div
     className={`${
       props.bgColor ? "bg-[" + props.bgColor + "]" : bg
-    } ${className}`}
+    } ${dfClassName} ${props.clssName}`}
     style={{ width: size }}
   >
     <PersonIcon sx={{ color, fontSize: props.iconSize || fontSize }} />
@@ -33,7 +34,7 @@ export const GroupIconIcon: React.FC<Props> = ({ size = SIZE, ...props }) => (
   <div
     className={`${
       props.bgColor ? "bg-[" + props.bgColor + "]" : bg
-    } ${className}`}
+    } ${dfClassName} ${props.clssName}`}
     style={{ width: size }}
   >
     <GroupIcon sx={{ color, fontSize: props.iconSize || fontSize }} />
@@ -44,7 +45,7 @@ export const ComunityIcon: React.FC<Props> = ({ size = SIZE, ...props }) => (
   <div
     className={`${
       props.bgColor ? "bg-[" + props.bgColor + "]" : bg
-    } ${className}`}
+    } ${dfClassName} ${props.clssName}`}
     style={{ width: size }}
   >
     <GroupsIcon sx={{ color, fontSize: props.iconSize || fontSize }} />
