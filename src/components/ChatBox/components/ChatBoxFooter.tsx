@@ -27,6 +27,12 @@ export default function ChatBoxFooter(props: Props) {
     }
   }, [content]);
 
+  React.useEffect(() => {
+    if (textareRef.current && replyMsg !== null) {
+      textareRef.current.focus();
+    }
+  }, [replyMsg]);
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -55,6 +61,9 @@ export default function ChatBoxFooter(props: Props) {
 
   const handleSubmit = async (event?: React.FormEvent) => {
     event?.preventDefault();
+
+    if (!content) return;
+    
     setContent(() => "");
 
     let chatId = currentChat?.id;

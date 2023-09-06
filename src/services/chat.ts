@@ -26,7 +26,7 @@ class ChatService implements ChatRepository {
 
   async updateChat(
     id: string,
-    data: Partial<Omit<Chat, "id"  | "createdBy">>,
+    data: Partial<Omit<Chat, "id" | "createdBy">>,
     merge: boolean = false
   ): Promise<void> {
     return this.api.updateChat(id, data, merge);
@@ -43,6 +43,14 @@ class ChatService implements ChatRepository {
     createFirebaseCollection?: boolean
   ): Promise<void> {
     return this.api.createMessage(chatId, data, createFirebaseCollection);
+  }
+
+  updateMessage(
+    chatId: string,
+    messageId: string,
+    data: Partial<Omit<Message, "id" | "sentAt" | "sender">>
+  ): void {
+    return this.api.updateMessage(chatId, messageId, data);
   }
 
   // User----------

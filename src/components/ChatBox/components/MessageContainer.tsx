@@ -11,6 +11,7 @@ import { ReplyMsgType } from "@/contexts/chatBoxCtx";
 import service from "@/services/chat";
 import useAppStates from "@/hooks/useAppState";
 import { Timestamp } from "firebase/firestore";
+import CheckIcon from "@mui/icons-material/Check";
 
 interface Props {
   message: Message;
@@ -126,7 +127,9 @@ export default React.memo(function MessageContainer(props: Props) {
     <div
       onMouseOver={handleMouseOver}
       onMouseLeave={handleMouseLeave}
-      className={`bg-[#005C4B] text-sm font-normal relative p-2 rounded-md  max-w-lg h-auto ${
+      className={`bg-[#005C4B] text-sm font-normal relative p-2 rounded-md pr-3 max-w-lg h-auto ${
+        !props.sameSender ? "mt-2" : ""
+      } ${
         owner
           ? "rounded-tr-none place-self-end"
           : props.message.sender === "system"
@@ -174,14 +177,33 @@ export default React.memo(function MessageContainer(props: Props) {
         (props.type === 2 && !owner && sender !== "system" && (
           <p style={{ color: props.senderNameColor }}>{sender}</p>
         ))}
-        {formattedText}
+      {formattedText}
 
-        {sender !== "system" && (
-          <span className="float-right translate-x-[2px] translate-y-[6px] ml-1 text-[11px] self-end w-min">{`${formatNumber(
-            date.hour
-          )}:${formatNumber(date.minute)}`}</span>
-        )}
-    
+      {sender !== "system" && (
+        <div className="float-right translate-x-[2px] translate-y-[6px] ml-1 text-[11px] self-end w-min flex items-center gap-1">
+          <span>{`${formatNumber(date.hour)}:${formatNumber(
+            date.minute
+          )}`}</span>
+
+          {owner && (
+            <>
+              {props.message.readBy.length === currentChat?.members.length ? (
+                <div className="relative">
+                  <CheckIcon sx={{ fontSize: 15, color: "#49B1D7" }} />
+                  <CheckIcon
+                    className="left-1 top-[4px] absolute"
+                    sx={{ fontSize: 15, color: "#49B1D7" }}
+                  />
+                </div>
+              ) : (
+                <div className="relative">
+                  <CheckIcon sx={{ fontSize: 15 }} />
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 });

@@ -23,7 +23,7 @@ export default function RepliedMsgContainer(props: Props) {
   const parts = props.msg.content.split("<br>");
   const formattedText = parts.map((part, index) => (
     <p
-      className={index !== parts.length - 1 ? "block" : "inline-block"}
+      className={`text-sm ${index !== parts.length - 1 ? "block" : "inline-block"}`}
       key={part}
     >
       {part}
@@ -85,7 +85,7 @@ export default function RepliedMsgContainer(props: Props) {
         />
         <div className="grow py-1 px-2">
           <div
-            className="flex flex-row text-sm mb-1 gap-1 items-center"
+            className="flex flex-row text-sm gap-1 items-center"
             style={{ color: colors[colorIndex] }}
           >
             <p>{sender ? sender : "carregando..."}</p>

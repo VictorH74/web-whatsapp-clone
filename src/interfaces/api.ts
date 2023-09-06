@@ -17,6 +17,11 @@ export default interface Api {
     data: Omit<Message, "id">,
     createFirebaseCollection?: boolean
   ): void;
+  updateMessage(
+    chatId: string,
+    messageId: string,
+    data: Partial<Omit<Message, "id" | "sentAt" | "sender">>
+  ): void;
 
   getUsersByEmail(email: string, ownerEmail?: string): Promise<User[]>;
   getUsersByEmailList(emails: string[]): Promise<User[]>;

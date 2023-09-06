@@ -68,6 +68,14 @@ export default class FirebaseApi implements Api {
     });
   }
 
+  updateMessage(
+    chatId: string,
+    messageId: string,
+    data: Partial<Omit<Message, "id" | "sentAt" | "sender">>
+  ): void {
+    fs.setDoc(fs.doc(db, `/message/${chatId}/messages`, messageId), data, {merge: true});
+  }
+
   // User----------
   createOrUpdateUser(
     data: Required<Pick<User, "email"> & Partial<Omit<User, "email">>>,

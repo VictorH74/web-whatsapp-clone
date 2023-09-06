@@ -5,8 +5,8 @@ import { Inter } from 'next/font/google'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Whatsapp Web Clone',
-  description: 'Clone app from whatsapp web',
+  title: 'Web Whatsapp Clone',
+  description: 'Web Whatsapp Clone App',
 }
 
 export default function RootLayout({

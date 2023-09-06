@@ -36,7 +36,7 @@ export default React.memo(function ChatBox() {
   const ref = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
-    if (currentChat === null) return;
+    if (currentChat === null || !currentUser) return;
 
     // Reset chatbox header
     setHeaderImg(undefined);
@@ -94,6 +94,19 @@ export default React.memo(function ChatBox() {
     if (messages.length < 0 && !initialMsgData) return;
     setInitialMsgData(false);
     scrollToBottom();
+
+    if (!currentUser || currentChat === null) return;
+
+    const chatId = currentChat.id;
+
+    if (chatId) {
+      messages.forEach((m) => {
+        if (!m.readBy.some((email) => email === currentUser.email)) {
+          const readBy = [...m.readBy, currentUser.email] as string[];
+          service.updateMessage(chatId, m.id, { readBy });
+        }
+      });
+    }
   }, [messages]);
 
   const fetchUser = React.cache((members: string[], type: ChatType) => {
