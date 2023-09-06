@@ -56,7 +56,7 @@ export default function Aside() {
                   {
                     email: email,
                     online: false,
-                    lastTimeOnline: new Date(),
+                    lastTimeOnline: new Date().toString(),
                   },
                   true
                 );

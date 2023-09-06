@@ -2,7 +2,7 @@ import { ReplyMsgType } from "@/contexts/chatBoxCtx";
 
 export type Chat = {
   id?: string;
-  createdAt: Date;
+  createdAt: string;
   createdBy: string;
   members: string[];
   name: string | null;
@@ -18,6 +18,6 @@ export type Message = {
   replyMsg: ReplyMsgType | null;
   sender: string | string;
   content: string;
-  sentAt: Date;
+  sentAt: string;
   readBy: string[];
 };

@@ -9,11 +9,7 @@ import Loading from "../global/Loading";
 import { ChatType, Message } from "@/types/chat";
 import ChatBoxBody from "./components/ChatBoxBody";
 import React from "react";
-import {
-  convertToTimestamp,
-  formatNumber,
-  generateChatId,
-} from "@/utils/functions";
+import { formatNumber, generateChatId } from "@/utils/functions";
 import { User } from "@/types/user";
 import { updateUsersObj } from "@/reduxStateSlices/usersSlice";
 
@@ -41,6 +37,11 @@ export default React.memo(function ChatBox() {
 
   React.useEffect(() => {
     if (currentChat === null) return;
+
+    // Reset chatbox header
+    setHeaderImg(undefined);
+    setHeaderTitle(undefined);
+    setHeaderSubHeading(undefined);
 
     let unSubscribeUser: fb.Unsubscribe | undefined;
 
@@ -134,7 +135,7 @@ export default React.memo(function ChatBox() {
           // ** format online last time inrfomation **
           const unknowDate = user.lastTimeOnline as unknown;
           const date = new Date((unknowDate as fb.Timestamp).seconds * 1000);
-          
+
           const [day, month, year] = [
             date.getDay(),
             date.getMonth(),

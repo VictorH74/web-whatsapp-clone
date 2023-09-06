@@ -55,7 +55,7 @@ const Main = () => {
         {
           email,
           online: false,
-          lastTimeOnline: new Date(),
+          lastTimeOnline: new Date().toString(),
         },
         true
       );
@@ -68,7 +68,7 @@ const Main = () => {
       email,
       photoURL: photoURL || undefined,
       online: true,
-      lastTimeOnline: new Date(),
+      lastTimeOnline: new Date().toString(),
     });
 
     const q = fs.query(
@@ -80,7 +80,19 @@ const Main = () => {
     const unsubscribe = fs.onSnapshot(q, (querySnapshot) => {
       const chatDatas: any[] = [];
       querySnapshot.forEach((doc) => {
-        chatDatas.push({ id: doc.id, ...doc.data() });
+        let chat = { ...doc.data() };
+
+        if (chat.recentMessage)
+          chat["recentMessage"] = {
+            ...chat.recentMessage,
+            sentAt: chat.recentMessage.sentAt.toString(),
+          };
+
+        chatDatas.push({
+          id: doc.id,
+          ...chat,
+          createdAt: chat.createdAt.toString()
+        });
       });
       updateChats(chatDatas);
       setIsLoading(false);

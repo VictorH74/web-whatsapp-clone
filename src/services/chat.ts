@@ -26,7 +26,7 @@ class ChatService implements ChatRepository {
 
   async updateChat(
     id: string,
-    data: Partial<Omit<Chat, "id" | "createdAt" | "createdBy">>,
+    data: Partial<Omit<Chat, "id"  | "createdBy">>,
     merge: boolean = false
   ): Promise<void> {
     return this.api.updateChat(id, data, merge);

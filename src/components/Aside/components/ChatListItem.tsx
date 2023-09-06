@@ -7,7 +7,7 @@ import {
   EmptyUserImgIcon,
   GroupIconIcon,
 } from "@/components/global/IconPresets";
-import { convertToTimestamp, formatNumber, getDate } from "@/utils/functions";
+import { formatNumber, getDate, convertToTimestamp } from "@/utils/functions";
 import service from "@/services/chat";
 import useAppStates from "@/hooks/useAppState";
 import { Timestamp } from "firebase/firestore";
@@ -30,7 +30,9 @@ export default function ChatListItem({ data, isLastItem }: Props) {
     setLeft(() => left as number);
   }, [ref]);
 
-  const date = getDate(convertToTimestamp(data.recentMessage?.sentAt));
+  const date = data.recentMessage
+    ? getDate(convertToTimestamp(data.recentMessage.sentAt))
+    : { hour: 0, minute: 0 };
 
   const fetchUser = React.cache(async () => {
     const { currentUser } = getAuth();

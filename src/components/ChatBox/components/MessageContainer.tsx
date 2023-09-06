@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Chat, ChatType, Message } from "@/types/chat";
-import { formatNumber, getDate, convertToTimestamp } from "@/utils/functions";
+import { formatNumber, getDate } from "@/utils/functions";
 import { getAuth } from "firebase/auth";
 import React from "react";
 import useChatBoxStates from "@/hooks/useChatBoxStates";
@@ -76,7 +76,7 @@ export default React.memo(function MessageContainer(props: Props) {
     };
     const userEmails: string[] = [currentUser.email, sender];
     const chat: Chat = {
-      createdAt: new Date(),
+      createdAt: new Date().toString(),
       createdBy: currentUser.email,
       members: userEmails,
       name: null,

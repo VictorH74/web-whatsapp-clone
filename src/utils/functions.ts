@@ -3,6 +3,9 @@ import { Timestamp, doc } from "firebase/firestore";
 
 export const createUserRef = (email: string) => doc(db, "user", email);
 
+export const unserializeDateField = (str: string) =>
+  convertToTimestamp(str) as unknown as Date;
+
 export const getDate = (
   timestamp?: Timestamp
 ): { hour: number; minute: number } => {
@@ -16,7 +19,7 @@ export const getDate = (
 };
 
 export const generateChatId = (emails: string[]) =>
-  emails
+  [...emails]
     .sort()
     .map((id) => id)
     .join("+");

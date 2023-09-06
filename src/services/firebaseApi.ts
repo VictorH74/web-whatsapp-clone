@@ -32,7 +32,20 @@ export default class FirebaseApi implements Api {
     merge: boolean
   ): Promise<void> {
     const chatRef = fs.doc(db, "chat", id);
-    await fs.setDoc(chatRef, data, { merge });
+
+    let chat: any = { ...data };
+
+    if (chat.recentMessage) {
+      chat["recentMessage"] = {
+        ...chat.recentMessage,
+        sentAt: new Date(chat.recentMessage.sentAt),
+      };
+    }
+
+    if (chat.createdAt && typeof chat.createdAt === "string")
+      chat["createdAt"] = new Date(chat.createdAt);
+
+    await fs.setDoc(chatRef, chat, { merge });
   }
 
   async deleteChat(id: string): Promise<void> {
@@ -49,7 +62,10 @@ export default class FirebaseApi implements Api {
     if (createFirebaseCollection) {
       await fs.setDoc(fs.doc(db, "message", chatId), {});
     }
-    await fs.addDoc(fs.collection(db, `/message/${chatId}/messages`), data);
+    await fs.addDoc(fs.collection(db, `/message/${chatId}/messages`), {
+      ...data,
+      sentAt: new Date(data.sentAt),
+    });
   }
 
   // User----------
@@ -59,7 +75,12 @@ export default class FirebaseApi implements Api {
   ): void {
     let userRef = fs.doc(db, "user", data.email);
 
-    fs.setDoc(userRef, data, {merge});
+    const user = {
+      ...data,
+      lastTimeOnline: new Date(data.lastTimeOnline),
+    };
+
+    fs.setDoc(userRef, user, { merge });
   }
 
   async retrieveUser(id: string): Promise<User> {
@@ -91,7 +112,7 @@ export default class FirebaseApi implements Api {
   async getUsersByEmailList(emails: string[]): Promise<User[]> {
     const q = fs.query(
       fs.collection(db, "user"),
-      fs.where("email", "in", emails),
+      fs.where("email", "in", emails)
     );
 
     const querySnapshot = await fs.getDocs(q);

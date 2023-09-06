@@ -3,5 +3,5 @@ export type User = {
   email: string;
   displayName: string;
   online: boolean;
-  lastTimeOnline: Date;
+  lastTimeOnline: string;
 };

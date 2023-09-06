@@ -4,12 +4,11 @@ import MicIcon from "@mui/icons-material/Mic";
 import SendIcon from "@mui/icons-material/Send";
 import React, { useRef } from "react";
 import { Chat, Message } from "@/types/chat";
-import { convertToTimestamp, generateChatId } from "@/utils/functions";
+import { generateChatId } from "@/utils/functions";
 import useChatBoxStates from "@/hooks/useChatBoxStates";
 import RepliedMsgContainer from "./RepliedMsgContainer";
 import service from "@/services/chat";
 import useAppStates from "@/hooks/useAppState";
-import { Timestamp } from "firebase/firestore";
 
 interface Props {
   currentUserEmail: string;
@@ -66,7 +65,7 @@ export default function ChatBoxFooter(props: Props) {
         replyMsg: replyMsg,
         sender: props.currentUserEmail,
         readBy: [props.currentUserEmail],
-        sentAt: new Date(),
+        sentAt: new Date().toString(),
       };
 
       if (replyMsg) setReplyMsg(null);
@@ -94,29 +93,20 @@ export default function ChatBoxFooter(props: Props) {
           return;
         }
 
-        const currentChatCreatedAt = convertToTimestamp(
-          currentChat.createdAt
-        ) as unknown as Date;
+        await service.updateChat(newChatId, currentChat);
 
-        const currentChatF = {
-          ...currentChat,
-          createdAt: currentChatCreatedAt,
-        };
-
-        await service.updateChat(newChatId, currentChatF);
-
-        const newChat: Chat = { id: newChatId, ...currentChatF } as Chat;
+        const newChat: Chat = { id: newChatId, ...currentChat } as Chat;
         updateCurrentChat(newChat);
         chatId = newChatId;
         createMsgCollection = true;
       }
 
       await service.createMessage(chatId, newMessage, createMsgCollection);
-      await service.updateChat(chatId, { recentMessage: newMessage }, true);
 
+      await service.updateChat(chatId, { recentMessage: newMessage }, true);
       props.scrollToBottom();
     } catch (e) {
-      alert("Error:");
+      alert("Error");
       console.log(e);
     }
   };
