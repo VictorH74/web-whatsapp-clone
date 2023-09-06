@@ -7,11 +7,19 @@ import { db } from "@/services/firebase";
 import Image from "next/image";
 import Loading from "../global/Loading";
 import { ChatType, Message } from "@/types/chat";
-import useAppStates from "@/hooks/useAppStates";
 import ChatBoxBody from "./components/ChatBoxBody";
 import React from "react";
-import { formatNumber, generateChatId } from "@/utils/functions";
+import {
+  convertToTimestamp,
+  formatNumber,
+  generateChatId,
+} from "@/utils/functions";
 import { User } from "@/types/user";
+import { updateUsersObj } from "@/reduxStateSlices/usersSlice";
+
+import useAppDispatch from "@/hooks/useDispatch";
+import service from "@/services/chat";
+import useAppStates from "@/hooks/useAppState";
 
 export default React.memo(function ChatBox() {
   const [messages, setMessages] = React.useState<Message[]>([]);
@@ -24,10 +32,11 @@ export default React.memo(function ChatBox() {
   const [isLoading, setIsLoading] = React.useState(true);
   const [prevChatId, setPrevChatId] = React.useState<string | undefined>();
 
+  const { users, currentChat, updateCurrentChat } = useAppStates();
+  const dispatch = useAppDispatch();
+
   const { currentUser } = getAuth();
 
-  const { users, currentChat, setCurrentChat, service, updateUserObj } =
-    useAppStates();
   const ref = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
@@ -59,7 +68,10 @@ export default React.memo(function ChatBox() {
     const unsubscribeMessages = fb.onSnapshot(q, (querySnapshot) => {
       const msgList: Message[] = [];
       querySnapshot.forEach((doc) => {
-        msgList.push({ id: doc.id, ...doc.data() } as Message);
+        msgList.push({
+          id: doc.id,
+          ...doc.data(),
+        } as Message);
       });
       setMessages(() => msgList);
       if (currentChat.type === 1) {
@@ -111,7 +123,7 @@ export default React.memo(function ChatBox() {
         if (diferentUserName) setHeaderTitle(user.displayName);
         if (diferentUserImg) setHeaderImg(user.photoURL);
         if (!hasUserId) {
-          updateUserObj(userId, user);
+          dispatch(updateUsersObj({ id: userId, data: user }));
           setIsLoading(false);
         }
 
@@ -122,6 +134,7 @@ export default React.memo(function ChatBox() {
           // ** format online last time inrfomation **
           const unknowDate = user.lastTimeOnline as unknown;
           const date = new Date((unknowDate as fb.Timestamp).seconds * 1000);
+          
           const [day, month, year] = [
             date.getDay(),
             date.getMonth(),
@@ -159,13 +172,13 @@ export default React.memo(function ChatBox() {
 
   const fetchChat = async (members: string[], onChatNotExist: () => void) => {
     const retrievedChat = await service.retrieveChat(generateChatId(members));
-    if (retrievedChat) setCurrentChat(retrievedChat);
+    if (retrievedChat) updateCurrentChat(retrievedChat);
     else onChatNotExist();
   };
 
   const deleteChat = React.useCallback(async () => {
     if (currentChat === null || !currentChat.id) return;
-    setCurrentChat(null);
+    updateCurrentChat(null);
     await service.deleteChat(currentChat.id);
     // TODO: delete message doc with the deleted chat id
     // possible only with firebase cloud functions :(
@@ -234,7 +247,7 @@ export default React.memo(function ChatBox() {
             ? [
                 {
                   onClick() {
-                    setCurrentChat(null);
+                    updateCurrentChat(null);
                   },
                   title: "Fechar Conversa",
                 },
@@ -256,7 +269,7 @@ export default React.memo(function ChatBox() {
             : [
                 {
                   onClick() {
-                    setCurrentChat(null);
+                    updateCurrentChat(null);
                   },
                   title: "Fechar Conversa",
                 },

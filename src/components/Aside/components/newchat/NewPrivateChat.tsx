@@ -6,17 +6,16 @@ import { User } from "@/types/user";
 import NewChatContainer from "./NewChatContainer";
 
 import { ComunityIcon, GroupIconIcon } from "@/components/global/IconPresets";
-import useAppStates from "@/hooks/useAppStates";
 import { Chat } from "@/types/chat";
 import useFetchUsers from "@/hooks/useFetchUsers";
 import SearchUserInput from "./SearchUserInput";
 import useAsideState from "@/hooks/useAsideState";
-import { undefinedUserEmailError } from "@/utils/constants";
+import useAppStates from "@/hooks/useAppState";
 
 export default function NewPrivateChat() {
   const [emailValue, setEmailValue] = React.useState("");
   const { currentUser } = getAuth();
-  const { setCurrentChat } = useAppStates();
+  const { updateCurrentChat } = useAppStates();
   const { setAsideContentNumber } = useAsideState();
   const { isLoading, users, resetFn } = useFetchUsers(
     emailValue,
@@ -29,21 +28,18 @@ export default function NewPrivateChat() {
       return;
     }
 
-    const userEmails: string[] = [
-      currentUser.email,
-      userObj.email,
-    ];
+    const userEmails: string[] = [currentUser.email, userObj.email];
 
     const chat: Chat = {
-      createdAt: new Date(),
+      createdAt: new Date().toString(),
       createdBy: currentUser.email,
       members: userEmails,
       name: null,
       type: 1,
       admList: userEmails,
     };
-    
-    setCurrentChat(chat);
+
+    updateCurrentChat(chat);
     close();
   };
 

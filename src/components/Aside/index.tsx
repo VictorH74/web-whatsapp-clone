@@ -8,11 +8,10 @@ import { getAuth } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import NewPrivateChat from "./components/newchat/NewPrivateChat";
 import useAsideState from "@/hooks/useAsideState";
-import useAppStates from "@/hooks/useAppStates";
+import service from "@/services/chat";
 
 export default function Aside() {
   const { setAsideContentNumber } = useAsideState();
-  const { service } = useAppStates();
   const router = useRouter();
   const auth = getAuth();
 

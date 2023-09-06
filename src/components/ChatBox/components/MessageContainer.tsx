@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import useAppStates from "@/hooks/useAppStates";
 import { Chat, ChatType, Message } from "@/types/chat";
-import { formatNumber, getDate } from "@/utils/functions";
+import { formatNumber, getDate, convertToTimestamp } from "@/utils/functions";
 import { getAuth } from "firebase/auth";
 import React from "react";
 import useChatBoxStates from "@/hooks/useChatBoxStates";
@@ -9,6 +8,9 @@ import RepliedMsgContainer from "./RepliedMsgContainer";
 import MessageMenuBtn from "./MessageMenuBtn";
 import MessagePhoto from "./MessagePhoto";
 import { ReplyMsgType } from "@/contexts/chatBoxCtx";
+import service from "@/services/chat";
+import useAppStates from "@/hooks/useAppState";
+import { Timestamp } from "firebase/firestore";
 
 interface Props {
   message: Message;
@@ -27,7 +29,7 @@ export default React.memo(function MessageContainer(props: Props) {
   const [mouseOver, setMouseOver] = React.useState(false);
   const [mouseLeave, setMouseLeave] = React.useState(false);
   const { currentUser } = getAuth();
-  const { users, service, setCurrentChat, currentChat } = useAppStates();
+  const { users, currentChat, updateCurrentChat } = useAppStates();
   const { setReplyMsg } = useChatBoxStates();
   // return focus to the button when we transitioned from !open -> open
 
@@ -82,7 +84,7 @@ export default React.memo(function MessageContainer(props: Props) {
       admList: userEmails,
     };
 
-    setCurrentChat(chat);
+    updateCurrentChat(chat);
     setReplyMsg(msg);
   };
 
@@ -106,17 +108,19 @@ export default React.memo(function MessageContainer(props: Props) {
     setMouseLeave(true);
   };
 
-  const date = getDate(props.message.sentAt);
+  const date = getDate(props.message.sentAt as unknown as Timestamp);
+
   const replyMsgId = props.message.replyMsg?.id;
 
   const parts = props.message.content.split("<br>");
-  const formattedText = parts.map((part, index) => {
-    if (index === parts.length - 1) {
-      return part;
-    } else {
-      return <p key={part}>{part}</p>;
-    }
-  });
+  const formattedText = parts.map((part, index) => (
+    <p
+      className={index !== parts.length - 1 ? "block" : "inline-block"}
+      key={part}
+    >
+      {part}
+    </p>
+  ));
 
   return (
     <div
@@ -170,7 +174,6 @@ export default React.memo(function MessageContainer(props: Props) {
         (props.type === 2 && !owner && sender !== "system" && (
           <p style={{ color: props.senderNameColor }}>{sender}</p>
         ))}
-      <p className="break-words">
         {formattedText}
 
         {sender !== "system" && (
@@ -178,7 +181,7 @@ export default React.memo(function MessageContainer(props: Props) {
             date.hour
           )}:${formatNumber(date.minute)}`}</span>
         )}
-      </p>
+    
     </div>
   );
 });

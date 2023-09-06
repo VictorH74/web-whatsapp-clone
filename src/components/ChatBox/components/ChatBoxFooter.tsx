@@ -2,12 +2,14 @@ import TagFacesIcon from "@mui/icons-material/TagFaces";
 import AddIcon from "@mui/icons-material/Add";
 import MicIcon from "@mui/icons-material/Mic";
 import SendIcon from "@mui/icons-material/Send";
-import React from "react";
+import React, { useRef } from "react";
 import { Chat, Message } from "@/types/chat";
-import useAppStates from "@/hooks/useAppStates";
-import { generateChatId } from "@/utils/functions";
+import { convertToTimestamp, generateChatId } from "@/utils/functions";
 import useChatBoxStates from "@/hooks/useChatBoxStates";
 import RepliedMsgContainer from "./RepliedMsgContainer";
+import service from "@/services/chat";
+import useAppStates from "@/hooks/useAppState";
+import { Timestamp } from "firebase/firestore";
 
 interface Props {
   currentUserEmail: string;
@@ -16,8 +18,15 @@ interface Props {
 
 export default function ChatBoxFooter(props: Props) {
   const [content, setContent] = React.useState("");
-  const { currentChat, setCurrentChat, service } = useAppStates();
+  const { currentChat, updateCurrentChat } = useAppStates();
   const { replyMsg, setReplyMsg } = useChatBoxStates();
+  const textareRef = useRef<HTMLTextAreaElement>(null);
+
+  React.useEffect(() => {
+    if (textareRef.current && !content) {
+      textareRef.current.style.height = "auto";
+    }
+  }, [content]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -71,7 +80,7 @@ export default function ChatBoxFooter(props: Props) {
         const retrievedChat = await service.retrieveChat(newChatId);
 
         if (retrievedChat) {
-          setCurrentChat(retrievedChat);
+          updateCurrentChat(retrievedChat);
 
           if (!retrievedChat.id) return;
 
@@ -85,10 +94,19 @@ export default function ChatBoxFooter(props: Props) {
           return;
         }
 
-        await service.updateChat(newChatId, currentChat);
+        const currentChatCreatedAt = convertToTimestamp(
+          currentChat.createdAt
+        ) as unknown as Date;
 
-        const newChat: Chat = { id: newChatId, ...currentChat } as Chat;
-        setCurrentChat(newChat);
+        const currentChatF = {
+          ...currentChat,
+          createdAt: currentChatCreatedAt,
+        };
+
+        await service.updateChat(newChatId, currentChatF);
+
+        const newChat: Chat = { id: newChatId, ...currentChatF } as Chat;
+        updateCurrentChat(newChat);
         chatId = newChatId;
         createMsgCollection = true;
       }
@@ -123,6 +141,7 @@ export default function ChatBoxFooter(props: Props) {
           </button>
 
           <textarea
+            ref={textareRef}
             rows={1}
             className="p-3 w-full text-white outline-none bg-[#2A3942] rounded-md resize-none overflow-hidden min-h-[36px] max-h-36 overflow-y-auto"
             placeholder="Mensagem"

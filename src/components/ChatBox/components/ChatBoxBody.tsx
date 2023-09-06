@@ -2,8 +2,8 @@
 import { ChatType, Message } from "@/types/chat";
 import MessageContainer from "./MessageContainer";
 import React from "react";
-import useAppStates from "@/hooks/useAppStates";
 import { colors } from "@/utils/constants";
+import useAppStates from "@/hooks/useAppState";
 
 interface Props {
   messages: Message[];

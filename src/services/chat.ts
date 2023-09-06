@@ -2,8 +2,9 @@ import Api from "@/interfaces/api";
 import ChatRepository from "@/interfaces/chat";
 import { Chat, Message } from "@/types/chat";
 import { User } from "@/types/user";
+import FirebaseApi from "./firebaseApi";
 
-export default class ChatService implements ChatRepository {
+class ChatService implements ChatRepository {
   private api: Api;
 
   constructor(api: Api) {
@@ -41,11 +42,14 @@ export default class ChatService implements ChatRepository {
     data: Omit<Message, "id">,
     createFirebaseCollection?: boolean
   ): Promise<void> {
-    return this.api.createMessage(chatId, data, createFirebaseCollection)
+    return this.api.createMessage(chatId, data, createFirebaseCollection);
   }
 
   // User----------
-  createOrUpdateUser(data: Pick<User, "email"> & Partial<Omit<User, "email">>, merge?: boolean): void {
+  createOrUpdateUser(
+    data: Pick<User, "email"> & Partial<Omit<User, "email">>,
+    merge?: boolean
+  ): void {
     return this.api.createOrUpdateUser(data, merge);
   }
 
@@ -61,3 +65,7 @@ export default class ChatService implements ChatRepository {
     return this.api.getUsersByEmailList(emails);
   }
 }
+
+const service = new ChatService(new FirebaseApi());
+
+export default service;

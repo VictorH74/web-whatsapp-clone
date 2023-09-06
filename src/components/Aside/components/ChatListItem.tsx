@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import useAppStates from "@/hooks/useAppStates";
 import { Chat } from "@/types/chat";
 import { getAuth } from "firebase/auth";
 import Image from "next/image";
@@ -8,7 +7,10 @@ import {
   EmptyUserImgIcon,
   GroupIconIcon,
 } from "@/components/global/IconPresets";
-import { formatNumber, getDate } from "@/utils/functions";
+import { convertToTimestamp, formatNumber, getDate } from "@/utils/functions";
+import service from "@/services/chat";
+import useAppStates from "@/hooks/useAppState";
+import { Timestamp } from "firebase/firestore";
 
 interface Props {
   data: Chat;
@@ -20,7 +22,7 @@ export default function ChatListItem({ data, isLastItem }: Props) {
   const [chatTitle, setChatTitle] = React.useState<string | null>(data.name);
   const [left, setLeft] = React.useState(0);
   const ref = React.useRef<HTMLDivElement>(null);
-  const { setCurrentChat, service, users } = useAppStates();
+  const { updateCurrentChat } = useAppStates();
 
   React.useEffect(() => {
     let left = ref.current?.offsetLeft;
@@ -28,7 +30,7 @@ export default function ChatListItem({ data, isLastItem }: Props) {
     setLeft(() => left as number);
   }, [ref]);
 
-  const date = getDate(data.recentMessage?.sentAt);
+  const date = getDate(convertToTimestamp(data.recentMessage?.sentAt));
 
   const fetchUser = React.cache(async () => {
     const { currentUser } = getAuth();
@@ -52,7 +54,7 @@ export default function ChatListItem({ data, isLastItem }: Props) {
       className={`relative flex flex-row pt-2 pb-3 items-center mb-[1px] ${
         false ? "bg-[#2A3942]" : ""
       } hover:bg-[#202C33] hover:cursor-pointer`}
-      onClick={() => setCurrentChat(data)}
+      onClick={() => updateCurrentChat(data)}
     >
       <div className="px-3 shrink-0">
         {data.type === 2 ? (

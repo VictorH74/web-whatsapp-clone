@@ -3,8 +3,9 @@ import { ReplyMsgType } from "@/contexts/chatBoxCtx";
 import { getAuth } from "firebase/auth";
 import ClearIcon from "@mui/icons-material/Clear";
 import React from "react";
-import useAppStates from "@/hooks/useAppStates";
 import { colors } from "@/utils/constants";
+import service from "@/services/chat";
+import useAppStates from "@/hooks/useAppState";
 
 interface Props {
   msg: ReplyMsgType;
@@ -17,21 +18,17 @@ export default function RepliedMsgContainer(props: Props) {
   const [colorIndex, setColorIndex] = React.useState(0);
   const [sender, setSender] = React.useState("");
   const { currentUser } = getAuth();
-  const { currentChat, users, service } = useAppStates();
+  const { users, currentChat } = useAppStates();
 
   const parts = props.msg.content.split("<br>");
-  const formattedText = parts.map((part, index) => {
-    if (index === parts.length - 1) {
-      return part;
-    } else {
-      return (
-        <>
-          {part}
-          <br />
-        </>
-      );
-    }
-  });
+  const formattedText = parts.map((part, index) => (
+    <p
+      className={index !== parts.length - 1 ? "block" : "inline-block"}
+      key={part}
+    >
+      {part}
+    </p>
+  ));
 
   React.useEffect(() => {
     if (currentUser?.email === props.msg.sender) {
@@ -103,7 +100,7 @@ export default function RepliedMsgContainer(props: Props) {
             )}
           </div>
 
-          <p className="text-xs max-w-md h-auto break-words">{formattedText}</p>
+          {formattedText}
         </div>
       </div>
 

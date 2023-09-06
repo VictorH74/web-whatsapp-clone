@@ -11,9 +11,9 @@ import SearchUserInput from "./SearchUserInput";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { GroupIconIcon } from "@/components/global/IconPresets";
 import CheckIcon from "@mui/icons-material/Check";
-import useAppStates from "@/hooks/useAppStates";
 import useAsideState from "@/hooks/useAsideState";
-import { undefinedUserEmailError } from "@/utils/constants";
+import service from "@/services/chat";
+import useAppStates from "@/hooks/useAppState";
 
 export default React.memo(function NewGroupChat() {
   const [submiting, setSubmiting] = React.useState(false);
@@ -22,7 +22,7 @@ export default React.memo(function NewGroupChat() {
   const [groupName, setGroupName] = React.useState("");
   const [next, setNext] = React.useState(false);
   const { currentUser } = getAuth();
-  const { service, setCurrentChat } = useAppStates();
+  const { updateCurrentChat } = useAppStates();
   const { setAsideContentNumber } = useAsideState();
   const { isLoading, users, resetFn } = useFetchUsers(
     emailValue,
@@ -57,16 +57,16 @@ export default React.memo(function NewGroupChat() {
       type: 2,
       createdBy: owner,
       name: groupName,
-      createdAt: new Date(),
+      createdAt: new Date().toString(),
     };
     const newMessage: Omit<Message, "id"> = {
       content: `Nova conversa criada por ${currentUser?.displayName}`,
       sender: "system",
       readBy: [],
       replyMsg: null,
-      sentAt: new Date(),
+      sentAt: new Date().toString(),
     };
-    
+
     const createdChat = await service.createChat(newChat);
 
     if (!createdChat.id) {
@@ -75,7 +75,7 @@ export default React.memo(function NewGroupChat() {
     }
 
     await service.createMessage(createdChat.id, newMessage, true);
-    setCurrentChat({ id: createdChat.id, ...newChat });
+    updateCurrentChat({ id: createdChat.id, ...newChat });
     close();
   };
 

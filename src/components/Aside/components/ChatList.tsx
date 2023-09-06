@@ -1,5 +1,5 @@
 import ChatListItem from "./ChatListItem";
-import useAppStates from "@/hooks/useAppStates";
+import useAppStates from "@/hooks/useAppState";
 
 export default function ChatList() {
   const { chats } = useAppStates();

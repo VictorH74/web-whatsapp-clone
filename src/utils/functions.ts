@@ -3,11 +3,12 @@ import { Timestamp, doc } from "firebase/firestore";
 
 export const createUserRef = (email: string) => doc(db, "user", email);
 
-export const getDate = (date?: Date): { hour: number; minute: number } => {
-  if (!date) return { hour: 0, minute: 0 };
+export const getDate = (
+  timestamp?: Timestamp
+): { hour: number; minute: number } => {
+  if (!timestamp) return { hour: 0, minute: 0 };
 
-  const unknowDate = date as unknown;
-  const dt = new Date((unknowDate as Timestamp).seconds * 1000);
+  const dt = new Date(timestamp.seconds * 1000);
   const hour = dt.getHours();
   const minute = dt.getMinutes();
 
@@ -25,4 +26,16 @@ export const formatNumber = (number: number) => {
     return "0" + number;
   }
   return `${number}`;
+};
+
+export const convertToTimestamp = (str?: string) => {
+  if (!str) return;
+  const timestampArray = str.match(/\d+/g);
+
+  if (timestampArray && timestampArray.length === 2) {
+    const seconds = parseInt(timestampArray[0]);
+    const nanoseconds = parseInt(timestampArray[1]);
+
+    return new Timestamp(seconds, nanoseconds);
+  }
 };
