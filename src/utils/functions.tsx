@@ -42,3 +42,17 @@ export const convertToTimestamp = (str?: string) => {
     return new Timestamp(seconds, nanoseconds);
   }
 };
+
+export const formatMsgContent = (contentText: string, className?: string) => {
+  const parts = contentText.split("<br>");
+  return parts.map((part, index) => (
+    <p
+      className={`${className} ${
+        index !== parts.length - 1 ? "block" : "inline-block"
+      }`}
+      key={part}
+    >
+      {part}
+    </p>
+  ));
+};

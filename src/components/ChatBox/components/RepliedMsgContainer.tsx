@@ -6,6 +6,7 @@ import React from "react";
 import { colors } from "@/utils/constants";
 import service from "@/services/chat";
 import useAppStates from "@/hooks/useAppState";
+import { formatMsgContent } from "@/utils/functions";
 
 interface Props {
   msg: ReplyMsgType;
@@ -18,7 +19,7 @@ export default function RepliedMsgContainer(props: Props) {
   const [colorIndex, setColorIndex] = React.useState(0);
   const [sender, setSender] = React.useState("");
   const { currentUser } = getAuth();
-  const { users, currentChat } = useAppStates();
+  const { currentChat, getUser } = useAppStates();
 
   React.useEffect(() => {
     if (currentUser?.email === props.msg.sender) {
@@ -41,31 +42,11 @@ export default function RepliedMsgContainer(props: Props) {
         setColorIndex(() => colorsObj[props.msg.sender]);
       }
 
-      getSender(props.msg.sender);
+      getUser(props.msg.sender, (user) => {
+        setSender(user?.displayName || "Usuário não encontrado");
+      });
     }
   }, []);
-
-  const getSender = async (senderId: string) => {
-    if (senderId in users) {
-      const user = users[senderId];
-      setSender(user?.displayName);
-      return;
-    }
-    const user = await service.retrieveUser(senderId);
-    setSender(user?.displayName || "Usuário não encontrado");
-  };
-
-  const parts = props.msg.content.split("<br>");
-  const formattedText = parts.map((part, index) => (
-    <p
-      className={`text-sm max-w-full ${
-        index !== parts.length - 1 ? "block" : "inline-block"
-      }`}
-      key={part}
-    >
-      {part}
-    </p>
-  ));
 
   return (
     <div className={`flex text-white h-auto  ${!props.deleteFn && "mb-1"}`}>
@@ -101,8 +82,7 @@ export default function RepliedMsgContainer(props: Props) {
               </>
             )}
           </div>
-
-          {formattedText}
+          {formatMsgContent(props.msg.content, "text-sm max-w-full")}
         </div>
       </div>
 

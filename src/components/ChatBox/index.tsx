@@ -28,7 +28,7 @@ export default React.memo(function ChatBox() {
   const [isLoading, setIsLoading] = React.useState(true);
   const [prevChatId, setPrevChatId] = React.useState<string | undefined>();
 
-  const { users, currentChat, updateCurrentChat } = useAppStates();
+  const { currentChat, updateCurrentChat, getUser } = useAppStates();
   const dispatch = useAppDispatch();
 
   const { currentUser } = getAuth();
@@ -119,13 +119,19 @@ export default React.memo(function ChatBox() {
 
     if (!currentUser?.email) return;
     const userId = members.filter((id) => id !== currentUser.email)[0];
-    const hasUserId = userId in users;
-
-    if (hasUserId) {
-      setHeaderImg(() => users[userId].photoURL);
-      setHeaderTitle(() => users[userId].displayName);
-      setIsLoading(false);
-    }
+    let hasUserId = false;
+    getUser(
+      userId,
+      (user) => {
+        if (user) {
+          hasUserId = true;
+          setHeaderImg(() => user.photoURL);
+          setHeaderTitle(() => user.displayName);
+          setIsLoading(false);
+        }
+      },
+      false
+    );
 
     // ** Real time user data (firebase) **
     return fb.onSnapshot(fb.doc(db, "user", userId), (doc) => {

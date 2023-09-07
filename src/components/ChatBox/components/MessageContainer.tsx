@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Chat, ChatType, Message } from "@/types/chat";
-import { formatNumber, getDate } from "@/utils/functions";
+import { formatMsgContent, formatNumber, getDate } from "@/utils/functions";
 import { getAuth } from "firebase/auth";
 import React from "react";
 import useChatBoxStates from "@/hooks/useChatBoxStates";
@@ -30,7 +30,7 @@ export default React.memo(function MessageContainer(props: Props) {
   const [mouseOver, setMouseOver] = React.useState(false);
   const [mouseLeave, setMouseLeave] = React.useState(false);
   const { currentUser } = getAuth();
-  const { users, currentChat, updateCurrentChat } = useAppStates();
+  const { currentChat, updateCurrentChat, getUser } = useAppStates();
   const { setReplyMsg } = useChatBoxStates();
   // return focus to the button when we transitioned from !open -> open
 
@@ -50,7 +50,10 @@ export default React.memo(function MessageContainer(props: Props) {
       setSender("x");
       return;
     }
-    getSender(props.message.sender);
+    getUser(props.message.sender, (user) => {
+      setSender(user?.displayName);
+      setSenderPhoto(user?.photoURL);
+    });
   }, []);
 
   const handleReply = () => {
@@ -89,17 +92,6 @@ export default React.memo(function MessageContainer(props: Props) {
     setReplyMsg(msg);
   };
 
-  const getSender = async (senderId: string) => {
-    if (senderId in users) {
-      const user = users[senderId];
-      setSender(user?.displayName);
-      setSenderPhoto(user.photoURL);
-      return;
-    }
-    const user = await service.retrieveUser(senderId);
-    setSender(user?.displayName);
-  };
-
   const handleMouseOver = () => {
     if (mouseLeave === true) setMouseLeave(false);
     if (mouseOver === false) setMouseOver(() => true);
@@ -112,16 +104,6 @@ export default React.memo(function MessageContainer(props: Props) {
   const date = getDate(props.message.sentAt as unknown as Timestamp);
 
   const replyMsgId = props.message.replyMsg?.id;
-
-  const parts = props.message.content.split("<br>");
-  const formattedText = parts.map((part, index) => (
-    <p
-      className={`break-words max-w-[495px] ${index !== parts.length - 1 ? "block" : "inline-block"}`}
-      key={part}
-    >
-      {part}
-    </p>
-  ));
 
   return (
     <div
@@ -177,8 +159,7 @@ export default React.memo(function MessageContainer(props: Props) {
         (props.type === 2 && !owner && sender !== "system" && (
           <p style={{ color: props.senderNameColor }}>{sender}</p>
         ))}
-      {formattedText}
-
+      {formatMsgContent(props.message.content, "break-words max-w-[495px]")}
       {sender !== "system" && (
         <div className="float-right translate-x-[2px] translate-y-[6px] ml-1 text-[11px] self-end w-min flex items-center gap-1">
           <span>{`${formatNumber(date.hour)}:${formatNumber(
