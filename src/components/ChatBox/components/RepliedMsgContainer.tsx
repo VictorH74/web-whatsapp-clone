@@ -20,16 +20,6 @@ export default function RepliedMsgContainer(props: Props) {
   const { currentUser } = getAuth();
   const { users, currentChat } = useAppStates();
 
-  const parts = props.msg.content.split("<br>");
-  const formattedText = parts.map((part, index) => (
-    <p
-      className={`text-sm ${index !== parts.length - 1 ? "block" : "inline-block"}`}
-      key={part}
-    >
-      {part}
-    </p>
-  ));
-
   React.useEffect(() => {
     if (currentUser?.email === props.msg.sender) {
       setColorIndex(1);
@@ -65,6 +55,18 @@ export default function RepliedMsgContainer(props: Props) {
     setSender(user?.displayName || "Usuário não encontrado");
   };
 
+  const parts = props.msg.content.split("<br>");
+  const formattedText = parts.map((part, index) => (
+    <p
+      className={`text-sm max-w-full ${
+        index !== parts.length - 1 ? "block" : "inline-block"
+      }`}
+      key={part}
+    >
+      {part}
+    </p>
+  ));
+
   return (
     <div className={`flex text-white h-auto  ${!props.deleteFn && "mb-1"}`}>
       <div
@@ -83,7 +85,7 @@ export default function RepliedMsgContainer(props: Props) {
           style={{ backgroundColor: colors[colorIndex] }}
           className={`w-1 h-full`}
         />
-        <div className="grow py-1 px-2">
+        <div className="grow py-1 px-2 break-words w-full">
           <div
             className="flex flex-row text-sm gap-1 items-center"
             style={{ color: colors[colorIndex] }}

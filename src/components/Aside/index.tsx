@@ -61,8 +61,10 @@ export default function Aside() {
                   true
                 );
               }
-              auth.signOut();
-              router.replace("/login");
+              setTimeout(() => {
+                auth.signOut();
+                router.replace("/login");
+              }, 400);
             },
             title: "Sair",
           },

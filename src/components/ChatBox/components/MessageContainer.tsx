@@ -116,7 +116,7 @@ export default React.memo(function MessageContainer(props: Props) {
   const parts = props.message.content.split("<br>");
   const formattedText = parts.map((part, index) => (
     <p
-      className={index !== parts.length - 1 ? "block" : "inline-block"}
+      className={`break-words max-w-[495px] ${index !== parts.length - 1 ? "block" : "inline-block"}`}
       key={part}
     >
       {part}
