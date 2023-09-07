@@ -18,7 +18,7 @@ export default function NewChatContainer(props: Props) {
 
   return (
     <div
-      className={`bg-[#111B21] flex flex-col absolute inset-0 z-50 ${
+      className={`bg-[#111B21] flex flex-col absolute overflow-y-auto inset-0 z-50 ${
         show ? "" : "-translate-x-full"
       } duration-200 ${props.className}`}
     >
