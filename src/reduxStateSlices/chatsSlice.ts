@@ -1,5 +1,5 @@
 import { RootState } from "@/app/store";
-import { Chat, Message } from "@/types/chat";
+import { Chat } from "@/types/chat";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface chatsState {

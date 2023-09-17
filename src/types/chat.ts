@@ -1,4 +1,4 @@
-import { ReplyMsgType } from "@/contexts/chatBoxCtx";
+import { Message } from "./message";
 
 export type Chat = {
   id?: string;
@@ -12,12 +12,3 @@ export type Chat = {
 };
 
 export type ChatType = 1 | 2;
-
-export type Message = {
-  id: string;
-  replyMsg: ReplyMsgType | null;
-  sender: string | string;
-  content: string;
-  sentAt: string;
-  readBy: string[];
-};

@@ -4,7 +4,7 @@ import UserListItem from "./UserListItem";
 import { getAuth } from "firebase/auth";
 import Loading from "@/components/global/Loading";
 import { User } from "@/types/user";
-import { Chat, Message } from "@/types/chat";
+import { Chat } from "@/types/chat";
 import NewChatContainer from "./NewChatContainer";
 import useFetchUsers from "@/hooks/useFetchUsers";
 import SearchUserInput from "./SearchUserInput";
@@ -12,8 +12,9 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { GroupIconIcon } from "@/components/global/IconPresets";
 import CheckIcon from "@mui/icons-material/Check";
 import useAsideState from "@/hooks/useAsideState";
-import service from "@/services/chat";
+import service from "@/services/api";
 import useAppStates from "@/hooks/useAppState";
+import { Message } from "@/types/message";
 
 export default React.memo(function NewGroupChat() {
   const [submiting, setSubmiting] = React.useState(false);

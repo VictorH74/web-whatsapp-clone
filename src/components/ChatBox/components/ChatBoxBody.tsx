@@ -1,9 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { ChatType, Message } from "@/types/chat";
+import { ChatType } from "@/types/chat";
 import MessageContainer from "./MessageContainer";
 import React from "react";
 import { colors } from "@/utils/constants";
 import useAppStates from "@/hooks/useAppState";
+import { Message } from "@/types/message";
 
 interface Props {
   messages: Message[];

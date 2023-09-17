@@ -3,12 +3,13 @@ import AddIcon from "@mui/icons-material/Add";
 import MicIcon from "@mui/icons-material/Mic";
 import SendIcon from "@mui/icons-material/Send";
 import React, { useRef } from "react";
-import { Chat, Message } from "@/types/chat";
+import { Chat } from "@/types/chat";
 import { generateChatId } from "@/utils/functions";
 import useChatBoxStates from "@/hooks/useChatBoxStates";
 import RepliedMsgContainer from "./RepliedMsgContainer";
-import service from "@/services/chat";
+import service from "@/services/api";
 import useAppStates from "@/hooks/useAppState";
+import { Message } from "@/types/message";
 
 interface Props {
   currentUserEmail: string;
@@ -63,7 +64,7 @@ export default function ChatBoxFooter(props: Props) {
     event?.preventDefault();
 
     if (!content) return;
-    
+
     setContent(() => "");
 
     let chatId = currentChat?.id;

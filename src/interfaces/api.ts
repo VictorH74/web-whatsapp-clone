@@ -1,33 +1,7 @@
-import { Chat, Message } from "@/types/chat";
-import { User } from "@/types/user";
+import ChatRepository from "./chat";
+import MessageRepository from "./message";
+import UserRepository from "./user";
 
-export default interface Api {
-  getChats(): Promise<Chat[]>;
-  createChat(data: Omit<Chat, "id">): Promise<Pick<Chat, "id">>;
-  retrieveChat(id: string): Promise<Chat | undefined>;
-  updateChat(
-    id: string,
-    data: Partial<Omit<Chat, "id" | "createdAt" | "createdBy">>,
-    merge: boolean
-  ): void;
-  deleteChat(id: string): void;
+export type Api = ChatRepository & MessageRepository & UserRepository
 
-  createMessage(
-    chatId: string,
-    data: Omit<Message, "id">,
-    createFirebaseCollection?: boolean
-  ): void;
-  updateMessage(
-    chatId: string,
-    messageId: string,
-    data: Partial<Omit<Message, "id" | "sentAt" | "sender">>
-  ): void;
-
-  getUsersByEmail(email: string, ownerEmail?: string): Promise<User[]>;
-  getUsersByEmailList(emails: string[]): Promise<User[]>;
-  createOrUpdateUser(
-    data: Pick<User, "email"> & Partial<Omit<User, "email">>,
-    merge?: boolean
-  ): void;
-  retrieveUser(id: string): Promise<User | undefined>;
-}
+export default Api

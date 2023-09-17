@@ -8,9 +8,8 @@ import {
   GroupIconIcon,
 } from "@/components/global/IconPresets";
 import { formatNumber, getDate, convertToTimestamp } from "@/utils/functions";
-import service from "@/services/chat";
+import service from "@/services/api";
 import useAppStates from "@/hooks/useAppState";
-import { Timestamp } from "firebase/firestore";
 
 interface Props {
   data: Chat;

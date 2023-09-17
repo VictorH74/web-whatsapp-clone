@@ -1,4 +1,4 @@
-import service from "@/services/chat";
+import service from "@/services/api";
 import { User } from "@/types/user";
 import { useState } from "react";
 import { useDebounce } from "react-use";

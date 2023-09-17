@@ -4,7 +4,6 @@ import { getAuth } from "firebase/auth";
 import ClearIcon from "@mui/icons-material/Clear";
 import React from "react";
 import { colors } from "@/utils/constants";
-import service from "@/services/chat";
 import useAppStates from "@/hooks/useAppState";
 import { formatMsgContent } from "@/utils/functions";
 

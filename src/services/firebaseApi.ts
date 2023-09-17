@@ -1,9 +1,10 @@
 import Api from "@/interfaces/api";
-import { Chat, Message } from "@/types/chat";
+import { Chat } from "@/types/chat";
 import { User } from "@/types/user";
 import * as fs from "firebase/firestore";
 import { db } from "./firebase";
 import { createUserRef } from "@/utils/functions";
+import { Message } from "@/types/message";
 
 const chatCollectionPath = "chat";
 
@@ -73,7 +74,7 @@ export default class FirebaseApi implements Api {
     messageId: string,
     data: Partial<Omit<Message, "id" | "sentAt" | "sender">>
   ): void {
-    fs.setDoc(fs.doc(db, `/message/${chatId}/messages`, messageId), data, {merge: true});
+    fs.setDoc(fs.doc(db, `/message/${chatId}/messages`, messageId), data, { merge: true });
   }
 
   // User----------

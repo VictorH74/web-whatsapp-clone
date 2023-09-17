@@ -1,6 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
-
 import ChatBox from "@/components/ChatBox";
 import Loading from "@/components/global/Loading";
 import { Provider } from "react-redux";
@@ -13,7 +12,7 @@ import { useRouter } from "next/navigation";
 import { getAuth } from "firebase/auth";
 import React from "react";
 import { undefinedUserEmailError } from "@/utils/constants";
-import service from "@/services/chat";
+import service from "@/services/api";
 import { UsersObjType, seedUsersObj } from "@/reduxStateSlices/usersSlice";
 import * as fs from "firebase/firestore";
 import { db } from "@/services/firebase";

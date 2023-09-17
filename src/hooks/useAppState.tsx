@@ -9,7 +9,7 @@ import { selectUsers } from "@/reduxStateSlices/usersSlice";
 import useAppDispatch from "./useDispatch";
 import { Chat } from "@/types/chat";
 import { User } from "@/types/user";
-import service from "@/services/chat";
+import service from "@/services/api";
 
 type callbackFnUser =
   | (Omit<User, "lastTimeOnline"> & Record<"lastTimeOnline", string>)

@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Chat, ChatType, Message } from "@/types/chat";
+import { Chat, ChatType } from "@/types/chat";
 import { formatMsgContent, formatNumber, getDate } from "@/utils/functions";
 import { getAuth } from "firebase/auth";
 import React from "react";
@@ -8,10 +8,10 @@ import RepliedMsgContainer from "./RepliedMsgContainer";
 import MessageMenuBtn from "./MessageMenuBtn";
 import MessagePhoto from "./MessagePhoto";
 import { ReplyMsgType } from "@/contexts/chatBoxCtx";
-import service from "@/services/chat";
 import useAppStates from "@/hooks/useAppState";
 import { Timestamp } from "firebase/firestore";
 import CheckIcon from "@mui/icons-material/Check";
+import { Message } from "@/types/message";
 
 interface Props {
   message: Message;

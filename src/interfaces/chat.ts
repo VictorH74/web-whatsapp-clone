@@ -1,5 +1,6 @@
-import { Chat, Message } from "@/types/chat";
-import { User } from "@/types/user";
+import { Chat } from "@/types/chat";
+
+export type UpdateChatDataType = Partial<Omit<Chat, "id" | "createdAt" | "createdBy">>
 
 export default interface ChatRepository {
   getChats(): Promise<Chat[]>;
@@ -7,21 +8,8 @@ export default interface ChatRepository {
   retrieveChat(id: string): Promise<Chat | undefined>;
   updateChat(
     id: string,
-    data: Partial<Omit<Chat, "id" | "createdAt" | "createdBy">>
+    data: UpdateChatDataType,
+    merge?: boolean
   ): void;
   deleteChat(id: string): void;
-
-  createMessage(
-    chatId: string,
-    data: Omit<Message, "id">,
-    createFirebaseCollection?: boolean
-  ): void;
-
-  getUsersByEmail(email: string): Promise<User[]>;
-  getUsersByEmailList(emails: string[]): Promise<User[]>;
-  createOrUpdateUser(
-    data: Required<Pick<User, "email"> & Partial<Omit<User, "email">>>
-  ): void;
-
-  retrieveUser(id: string): Promise<User | undefined>;
 }
