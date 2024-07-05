@@ -17,7 +17,7 @@ https://whatsappclonevh.vercel.app/
 - Create message
 - Reference message
   ![Alt text](/public/group-chat.png "Project screenshot")
-- Swich chats
+- Switch chats
 - Read confirmation
 - Online user status
   ![Alt text](/public/in-chat.png "Project screenshot")
